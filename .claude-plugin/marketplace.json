@@ -1,0 +1,14 @@
+{
+  "name": "flonat-research",
+  "owner": {
+    "name": "kiranramanna"
+  },
+  "description": "Academic research kit — skills and agents for LaTeX, bibliography, proofreading, code review, and research project workflows.",
+  "plugins": [
+    {
+      "name": "flonat-research",
+      "source": ".",
+      "description": "51 skills + 15 agents for academic research workflows (LaTeX, bibliography, proofreading, paper review, code-paper auditing)."
+    }
+  ]
+}

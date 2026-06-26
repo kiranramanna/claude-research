@@ -1,0 +1,35 @@
+{
+  "name": "flonat-research",
+  "version": "0.2.1",
+  "description": "Academic research kit: 51 skills + 15 agents for LaTeX, bibliography, proofreading, code review, and research project management.",
+  "author": {
+    "name": "flonat",
+    "url": "https://github.com/flonat/claude-research"
+  },
+  "homepage": "https://github.com/flonat/claude-research",
+  "license": "MIT",
+  "keywords": [
+    "academic",
+    "research",
+    "latex",
+    "bibliography",
+    "proofreading"
+  ],
+  "agents": [
+    "./.claude/agents/artifact-coherence-auditor.md",
+    "./.claude/agents/blindspot.md",
+    "./.claude/agents/claim-verify.md",
+    "./.claude/agents/code-paper-auditor.md",
+    "./.claude/agents/code-review.md",
+    "./.claude/agents/codex-research.md",
+    "./.claude/agents/domain-reviewer.md",
+    "./.claude/agents/fatal-error-check.md",
+    "./.claude/agents/fixer.md",
+    "./.claude/agents/gemini-research.md",
+    "./.claude/agents/paper-critic.md",
+    "./.claude/agents/peer-reviewer.md",
+    "./.claude/agents/proposal-reviewer.md",
+    "./.claude/agents/referee2-reviewer.md",
+    "./.claude/agents/reproducibility-auditor.md"
+  ]
+}
