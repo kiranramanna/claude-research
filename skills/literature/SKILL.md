@@ -9,7 +9,7 @@ argument-hint: "[topic-query] or <topic-slug> for full pipeline"
 
 Comprehensive academic literature workflow: discover, verify, organise, synthesise. Uses parallel sub-agents to search multiple sources, verify citations, and fetch PDFs concurrently.
 
-> **Web alternative**: a lighter-weight version of this workflow runs at [literature.user.com](https://literature.user.com) (`packages/literature-workspace/`) — keyword/file-upload search across biblio-sources + RefPile, with Sonnet-driven synthesis. Useful for collaborators (CF Access auth) or quick discovery sessions where you don't need vault sync, DOI hard-gating, or pipeline mode. Use the CLI skill when you need verified citations entering a `.bib` file or full Phase 5 synthesis with negative-evidence + cross-cluster analysis.
+> **Web alternative**: a lighter-weight version of this workflow runs at [literature.example.com](https://literature.example.com) (`packages/literature-workspace/`) — keyword/file-upload search across biblio-sources + RefPile, with Sonnet-driven synthesis. Useful for collaborators (CF Access auth) or quick discovery sessions where you don't need vault sync, DOI hard-gating, or pipeline mode. Use the CLI skill when you need verified citations entering a `.bib` file or full Phase 5 synthesis with negative-evidence + cross-cluster analysis.
 
 ## Hard Rules
 
@@ -65,19 +65,19 @@ Full schema + protocol: [`docs/reference/sprint-contract-protocol.md`](../../doc
 | **Deep** | `/literature --deep [query]` | Standalone or pipeline + iterative gap-filling loop after Phase 3. Also triggered by "deep", "thorough", or "comprehensive review" in the query. |
 | **Autonomous** | `/literature --autonomous <slug>` (or `-y`) | Pipeline + run end-to-end without inter-phase pauses. Stackable with `--deep`. Hard gates still run; defaults used at every choice point. See "Autonomy" below. |
 
-**Mode detection:** if the argument matches an atlas topic slug (`~/Research-Vault/atlas/<slug>.md`), run in Pipeline mode. Otherwise, Standalone. When in doubt, ask. Deep is a flag on either base mode. Autonomous is a flag on either base mode.
+**Mode detection:** if the argument matches an atlas topic slug (`~/vault/atlas/<slug>.md`), run in Pipeline mode. Otherwise, Standalone. When in doubt, ask. Deep is a flag on either base mode. Autonomous is a flag on either base mode.
 
-**Pipeline mode — project context resolution:** find the atlas topic file (`find ~/Research-Vault/atlas/ -name "<topic-slug>.md"`), read frontmatter (`title`, `project_path`, `outputs`, `connected_topics`), resolve `PROJECT="$(cat ~/.config/task-mgmt/research-root)/<project_path>"`, locate the `.bib` file (ask if multiple). Report context and wait for confirmation before Phase 1 — **unless `--autonomous` is set**, in which case ambiguity is resolved by picking the largest `.bib` file in the project (typically `paper-*/paper/references.bib` or `docs/literature-review/literature_summary.bib`) and logging the choice.
+**Pipeline mode — project context resolution:** find the atlas topic file (`find ~/vault/atlas/ -name "<topic-slug>.md"`), read frontmatter (`title`, `project_path`, `outputs`, `connected_topics`), resolve `PROJECT="$(cat ~/.config/task-mgmt/research-root)/<project_path>"`, locate the `.bib` file (ask if multiple). Report context and wait for confirmation before Phase 1 — **unless `--autonomous` is set**, in which case ambiguity is resolved by picking the largest `.bib` file in the project (typically `paper-*/paper/references.bib` or `docs/literature-review/literature_summary.bib`) and logging the choice.
 
 ## Autonomy
 
-Per the global `--autonomous` / `-y` convention defined in `~/.claude/rules/phased-work.md` § "Autonomy flag convention". When set:
+Per the global `--autonomous` / `-y` convention defined in `<rules-root>/phased-work.md` § "Autonomy flag convention". When set:
 
 - **No Phase 1.4 search-plan confirmation** — emit the plan to the session log and proceed
 - **No Phase 2.2 dedup/rank pause** — apply default filters and continue
 - **No Phase 3.5 deep-loop "continue?" prompts** — run up to 3 iterations (default), stop when <3 new papers per iteration
 - **No Phase 4.3 bib-validate "review and continue" pause** — `/bib-validate` still runs as a hard gate; warnings are logged and reported at the end; only `F1 fabricated citation` or `F2 invented bib key` block the run
-- **No `AskUserQuestion` mid-run** — every choice point uses the recommended/default option and logs the decision
+- **No `the available structured-question mechanism` mid-run** — every choice point uses the recommended/default option and logs the decision
 - **Auto-commit at end** in pipeline mode (subject to Phase 4.6 verifier)
 - **Single end-of-run report** is the only mandatory user-facing output
 
@@ -138,7 +138,7 @@ Find existing `.bib` files in project root, `/references`, `/bib`, `/bibliograph
 4. **Mandatory: check Paperpile.** Call `paperpile search-library` for the topic (and `paperpile get-items-by-label` if a relevant label exists) to *discover* what the library already holds and reuse those citation keys. This is topic discovery, **not** a membership test. **Membership/`NEW` tagging is decided authoritatively by DOI** (`paperpile lookup-by-doi`) in **Phase 3 Step 5** (the integrity gate), per [`shared/reference-resolution.md`](../shared/reference-resolution.md) § Membership Check — never default a paper to `NEW` because this topic search missed it. A topic-search hit here is a reuse *hint*; a topic-search miss proves nothing. If `paperpile` CLI is unavailable, log a warning and continue.
 5. **Resolve topic label** via `paperpile get-labels` for the current topic. Used in Phase 4 sync reporting.
 6. **Check source availability** via `scholarly source-status --json` (OpenAlex always; Scopus/WoS if API keys are set). Report so search agents know coverage.
-7. **Check scout-audit reports.** Glob `~/Research-Vault/reports/scout/portfolio/*<topic-slug>*.md` and `*<topic-keyword>*.md`. If a recent (≤90 days) report exists, parse the **Closest prior works** and **Most likely scoopers** sections — feed authors/papers/groups directly to Phase 2 search agents as seeds. This avoids re-discovering what scout already surfaced.
+7. **Check scout-audit reports.** Glob `~/vault/reports/scout/portfolio/*<topic-slug>*.md` and `*<topic-keyword>*.md`. If a recent (≤90 days) report exists, parse the **Closest prior works** and **Most likely scoopers** sections — feed authors/papers/groups directly to Phase 2 search agents as seeds. This avoids re-discovering what scout already surfaced.
 8. **Cold-start branch.** If steps 4–7 yield <3 papers AND project status is `Idea` or `Drafting` (read from atlas topic frontmatter or skip if standalone), enter **scaffold-seeded mode**:
    - Search the project for a canonical scaffold document (`to-sort/*scaffold*.md`, `to-sort/*sketch*.md`, or `docs/*scaffold*.md`). Read it for the canonical reference list.
    - For canonical CS/ML references explicitly named in the scaffold (e.g. "Ghorbani-Zou Data Shapley ICML 2019"), use `scholarly arxiv-get-paper --arxiv-id <id>` directly when arXiv IDs are known — broad `scholarly-search` returns high-citation noise (climate, hydrogen) on generic ML queries like "data shapley".
@@ -206,7 +206,7 @@ Full protocol: [`references/phase-4-verification.md`](references/phase-4-verific
 
 #### Dispatch Rule (Steps 1, 4 & 5)
 
-Per [`_shared/cli-dispatch-policy.md`](../_shared/cli-dispatch-policy.md): if Step 1 or Step 4 would require **2 or more** `scholarly-verify-dois` calls (i.e. >50 DOIs total), dispatch a single Bash sub-agent that runs all batched calls and writes merged JSON to `/tmp/lit-verify.json`. Main context reads only the merged result, never the raw CLI output. **Step 5 membership lookups follow the same rule:** ≥6 `paperpile lookup-by-doi` calls dispatch to one Bash sub-agent returning a merged `{doi: citekey-or-null}` map to `/tmp/lit-membership.json`. For the bulk-threshold rationale, see `~/.claude/rules/subagent-prompt-discipline.md` § Bulk-Operation Dispatch Rule.
+Per [`_shared/cli-dispatch-policy.md`](../_shared/cli-dispatch-policy.md): if Step 1 or Step 4 would require **2 or more** `scholarly-verify-dois` calls (i.e. >50 DOIs total), dispatch a single Bash sub-agent that runs all batched calls and writes merged JSON to `/tmp/lit-verify.json`. Main context reads only the merged result, never the raw CLI output. **Step 5 membership lookups follow the same rule:** ≥6 `paperpile lookup-by-doi` calls dispatch to one Bash sub-agent returning a merged `{doi: citekey-or-null}` map to `/tmp/lit-membership.json`. For the bulk-threshold rationale, see `<rules-root>/subagent-prompt-discipline.md` § Bulk-Operation Dispatch Rule.
 
 ### 3.5 Iterative deep loop (deep mode only)
 
@@ -258,12 +258,12 @@ Before any auto-commit, emit an outputs manifest and run the shared verifier per
 2. Run:
 
    ```bash
-   python3 "$HOME/.claude/skills/_shared/verify_outputs.py" \
+   uv run python "<skills-root>/_shared/verify_outputs.py" \
        --manifest "$MANIFEST" \
        --project-root "$PROJECT_ROOT"
    ```
 
-3. If the verifier exits non-zero, **do not commit**. Surface the missing-files list and stop. The verifier logs an `error` entry to `~/.claude/ecc/skill-outcomes.jsonl`.
+3. If the verifier exits non-zero, **do not commit**. Surface the missing-files list and stop. The verifier logs an `error` entry to `~/.local/state/ai-workflows/skill-outcomes.jsonl`.
 
 Closes the "hallucinated outputs" failure class (commit `b2cff75`, 2026-04-18).
 
@@ -299,3 +299,17 @@ Output types: narrative summary, literature deck, annotated bibliography, concis
 ## Cross-References
 
 See [`references/related-skills.md`](references/related-skills.md) for cross-references, bibliometric API guides, and arXiv full-text reading instructions.
+
+## Citation Contract
+
+<!-- paperpile-citation-contract -->
+1. Paperpile is the only source of truth for committed citation keys and BibTeX metadata.
+2. Before writing `\cite{key}`, verify with `paperpile get-item key` and `paperpile export-bib key`.
+3. Resolve unknowns in order: DOI lookup → Paperpile substring search → `refpile` semantic search → Paperpile verify.
+4. A DOI miss is **not** non-membership; continue with title/author search and refpile.
+5. If unresolved, write `\CiteTodo{slug}{title/author/year/DOI hint}` — never a guessed key.
+6. Drafting sub-agents must not write/edit the active `.bib`; only the orchestrator regenerates it from Paperpile exports.
+7. Stage genuine new refs under `.paperpile-import/` for manual Paperpile import; don't cite until Paperpile mints the key.
+8. Run `scripts/bib/citation_lint.py` before commit; zero placeholders, zero non-Paperpile keys, zero hand-authored metadata.
+
+See `rules/paperpile-citations.md` for the full workflow.

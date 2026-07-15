@@ -1,7 +1,7 @@
 ---
 name: python-env
 description: "Use when you need Python environment management with uv (install, create venv, manage deps)."
-allowed-tools: Bash(uv*), Bash(python*), Bash(mkdir*), Bash(ls*)
+allowed-tools: Bash(uv*), Bash(uv:*), Bash(mkdir*), Bash(ls*)
 ---
 
 # Python Environment Management
@@ -56,6 +56,6 @@ uv sync                           # Install dependencies
 uv run python .scripts/tasks      # Run CLI tools
 ```
 
-## On your HPC cluster HPC
+## On [HPC cluster] HPC
 
-Avon uses **Miniconda3 + Lmod** (not uv) because cluster users need to compose with `module load CUDA/12.6.0` and other pre-built modules. The project-specific pattern is `hpc/env-setup.sh` (conda create + pip install) — see [`docs/guides/hpc.md`](../../docs/guides/hpc.md) and reference implementations under `Projects/[your-project]/hpc/env-setup.sh`. The local dev env still uses uv; HPC gets its own conda env with identical pins. Don't try to port uv to Avon — the module system assumes conda.
+Avon uses **Miniconda3 + Lmod** (not uv) because cluster users need to compose with `module load CUDA/12.6.0` and other pre-built modules. The project-specific pattern is `hpc/env-setup.sh` (conda create + pip install) — see [`docs/guides/hpc.md`](../../docs/guides/hpc.md) and reference implementations under `Projects/NLP/{example-project-a,benchmark-gaming-llm-safety}/hpc/env-setup.sh`. The local dev env still uses uv; HPC gets its own conda env with identical pins. Don't try to port uv to Avon — the module system assumes conda.

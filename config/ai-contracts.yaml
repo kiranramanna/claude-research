@@ -1,0 +1,1371 @@
+version: 1
+product:
+  name: flonat-research
+  audience: public
+  legacy_names:
+  - claude-research
+  target: public/public-repo
+disclosure:
+  hierarchy:
+  - private
+  - friends
+  - public
+  guard_required: true
+client_capabilities:
+  claude:
+  - bare-python-execution
+  - claude-client-instruction
+  - claude-home-layout
+  - claude-hooks
+  - claude-mcp
+  - claude-tool-syntax
+  - external-codex-delegation
+  - filesystem
+  - machine-specific-layout
+  - shell
+  - skill-routing
+  - structured-input
+  - subagents
+  - web
+  codex:
+  - filesystem
+  - shell
+  - skill-routing
+  - structured-input
+  - subagents
+  - web
+files_first_context:
+- MEMORY.md
+- .context
+- .context/ai-handoff.md
+assets:
+  skills:
+    audit-paper-book:
+      path: skills/audit-paper-book
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    audit-project-research:
+      path: skills/audit-project-research
+      clients:
+      - claude
+      requires:
+      - claude-home-layout
+      - filesystem
+      - machine-specific-layout
+      - shell
+      - skill-routing
+    beamer-deck:
+      path: skills/beamer-deck
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    bib-coverage:
+      path: skills/bib-coverage
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    bib-filter:
+      path: skills/bib-filter
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    bib-parse:
+      path: skills/bib-parse
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    bib-validate:
+      path: skills/bib-validate
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    brief-compliance-check:
+      path: skills/brief-compliance-check
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    camera-ready:
+      path: skills/camera-ready
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    causal-design:
+      path: skills/causal-design
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+      - subagents
+    checkpoint:
+      path: skills/checkpoint
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    code-archaeology:
+      path: skills/code-archaeology
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+    codex-math:
+      path: skills/codex-math
+      clients:
+      - claude
+      requires:
+      - claude-home-layout
+      - filesystem
+      - shell
+      - skill-routing
+    compile-knowledge:
+      path: skills/compile-knowledge
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    computational-experiments:
+      path: skills/computational-experiments
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    cross-language-check:
+      path: skills/cross-language-check
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    data-analysis:
+      path: skills/data-analysis
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    devils-advocate:
+      path: skills/devils-advocate
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    docs-consistency:
+      path: skills/docs-consistency
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    docx:
+      path: skills/docx
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - web
+    experiment-design:
+      path: skills/experiment-design
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    gather-readings:
+      path: skills/gather-readings
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - machine-specific-layout
+      - shell
+      - skill-routing
+      - subagents
+    grill-me:
+      path: skills/grill-me
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    handoff:
+      path: skills/handoff
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    ideas:
+      path: skills/ideas
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    init-paper-book:
+      path: skills/init-paper-book
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    init-project:
+      path: skills/init-project
+      clients:
+      - claude
+      requires:
+      - claude-tool-syntax
+      - filesystem
+      - shell
+    init-project-course:
+      path: skills/init-project-course
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    init-project-light:
+      path: skills/init-project-light
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    init-project-research:
+      path: skills/init-project-research
+      clients:
+      - claude
+      requires:
+      - claude-home-layout
+      - claude-tool-syntax
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    insights-deck:
+      path: skills/insights-deck
+      clients:
+      - claude
+      requires:
+      - claude-tool-syntax
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    interview-me:
+      path: skills/interview-me
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    knowledge-lint:
+      path: skills/knowledge-lint
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - skill-routing
+    latex:
+      path: skills/latex
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    latex-diff:
+      path: skills/latex-diff
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    latex-health-check:
+      path: skills/latex-health-check
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    latex-polish:
+      path: skills/latex-polish
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    latex-posters:
+      path: skills/latex-posters
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - web
+    latex-scaffold:
+      path: skills/latex-scaffold
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    latex-template:
+      path: skills/latex-template
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    lean-check:
+      path: skills/lean-check
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    literature:
+      path: skills/literature
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    math-proof:
+      path: skills/math-proof
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    mcp-builder:
+      path: skills/mcp-builder
+      clients:
+      - claude
+      requires:
+      - claude-mcp
+      - filesystem
+      - shell
+      - subagents
+      - web
+    meetings-cleanup:
+      path: skills/meetings-cleanup
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    meetings-debrief:
+      path: skills/meetings-debrief
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    meetings-list:
+      path: skills/meetings-list
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    meetings-prep:
+      path: skills/meetings-prep
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    meetings-recap:
+      path: skills/meetings-recap
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    meetings-search:
+      path: skills/meetings-search
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    meetings-verify:
+      path: skills/meetings-verify
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    meetings-weekly:
+      path: skills/meetings-weekly
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    memory-cleanup:
+      path: skills/memory-cleanup
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    method-audit:
+      path: skills/method-audit
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    multi-perspective:
+      path: skills/multi-perspective
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+      - subagents
+    numerical-check:
+      path: skills/numerical-check
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    pdf:
+      path: skills/pdf
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - web
+    pipeline-manifest:
+      path: skills/pipeline-manifest
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    playwright-cli:
+      path: skills/playwright-cli
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - web
+    postmortem:
+      path: skills/postmortem
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    pre-commit-audit:
+      path: skills/pre-commit-audit
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    pre-submission-report:
+      path: skills/pre-submission-report
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    preprint:
+      path: skills/preprint
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    preregister:
+      path: skills/preregister
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - web
+    project-deck:
+      path: skills/project-deck
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+    project-safety:
+      path: skills/project-safety
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    proof-readability:
+      path: skills/proof-readability
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    proofread:
+      path: skills/proofread
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    python-env:
+      path: skills/python-env
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+    quarto-deck:
+      path: skills/quarto-deck
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    rename-project-research:
+      path: skills/rename-project-research
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    reorg:
+      path: skills/reorg
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    replication-audit:
+      path: skills/replication-audit
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    replication-package:
+      path: skills/replication-package
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    retarget-journal:
+      path: skills/retarget-journal
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    review-cluster:
+      path: skills/review-cluster
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    review-response:
+      path: skills/review-response
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    save-context:
+      path: skills/save-context
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    session-close:
+      path: skills/session-close
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    session-health:
+      path: skills/session-health
+      clients:
+      - claude
+      requires:
+      - claude-home-layout
+      - filesystem
+      - shell
+      - skill-routing
+    session-log:
+      path: skills/session-log
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    skill-creator:
+      path: skills/skill-creator
+      clients:
+      - claude
+      requires:
+      - claude-client-instruction
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    skill-extract:
+      path: skills/skill-extract
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - web
+    skill-health:
+      path: skills/skill-health
+      clients:
+      - claude
+      requires:
+      - claude-home-layout
+      - filesystem
+      - shell
+      - skill-routing
+    skill-preflight:
+      path: skills/skill-preflight
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    split-pdf:
+      path: skills/split-pdf
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    strategic-revision:
+      path: skills/strategic-revision
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    symbolic-check:
+      path: skills/symbolic-check
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    sync-permissions:
+      path: skills/sync-permissions
+      clients:
+      - claude
+      requires:
+      - claude-home-layout
+      - filesystem
+      - shell
+      - skill-routing
+    synthesise-reviews:
+      path: skills/synthesise-reviews
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+      - subagents
+    synthetic-data:
+      path: skills/synthetic-data
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    system-audit:
+      path: skills/system-audit
+      clients:
+      - claude
+      requires:
+      - claude-home-layout
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    tailscale-mosh-recover:
+      path: skills/tailscale-mosh-recover
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - machine-specific-layout
+      - shell
+      - skill-routing
+      - web
+    task-management:
+      path: skills/task-management
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    test-iterate-loop:
+      path: skills/test-iterate-loop
+      clients:
+      - claude
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    tikz:
+      path: skills/tikz
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    update-focus:
+      path: skills/update-focus
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    update-project-doc:
+      path: skills/update-project-doc
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    venue-fork:
+      path: skills/venue-fork
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    verify-math:
+      path: skills/verify-math
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    voice-analyzer:
+      path: skills/voice-analyzer
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    voice-editor:
+      path: skills/voice-editor
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    weakness-scanner:
+      path: skills/weakness-scanner
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    webapp-testing:
+      path: skills/webapp-testing
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - web
+    wiki-curate:
+      path: skills/wiki-curate
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    wiki-grow:
+      path: skills/wiki-grow
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    wiki-merge:
+      path: skills/wiki-merge
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    wire-shared-package:
+      path: skills/wire-shared-package
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    xlsx:
+      path: skills/xlsx
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - web
+  agents:
+    artifact-coherence-auditor.md:
+      path: agents/artifact-coherence-auditor.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    blindspot.md:
+      path: agents/blindspot.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    claim-verify.md:
+      path: agents/claim-verify.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - web
+    code-paper-auditor.md:
+      path: agents/code-paper-auditor.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+    code-review.md:
+      path: agents/code-review.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    codex-research.md:
+      path: agents/codex-research.md
+      clients:
+      - claude
+      requires:
+      - external-codex-delegation
+      - filesystem
+      - shell
+      - skill-routing
+    domain-reviewer.md:
+      path: agents/domain-reviewer.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    fatal-error-check.md:
+      path: agents/fatal-error-check.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - skill-routing
+    fixer.md:
+      path: agents/fixer.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    gemini-research.md:
+      path: agents/gemini-research.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - web
+    paper-critic.md:
+      path: agents/paper-critic.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+    peer-reviewer.md:
+      path: agents/peer-reviewer.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    proposal-reviewer.md:
+      path: agents/proposal-reviewer.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    referee2-reviewer.md:
+      path: agents/referee2-reviewer.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+      - subagents
+      - web
+    reproducibility-auditor.md:
+      path: agents/reproducibility-auditor.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+      - shell
+      - skill-routing
+  hooks:
+    block-destructive-git.sh:
+      path: hooks/block-destructive-git.sh
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    context-monitor.py:
+      path: hooks/context-monitor.py
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    handoff-read.sh:
+      path: hooks/handoff-read.sh
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    postcompact-restore.py:
+      path: hooks/postcompact-restore.py
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    precompact-autosave.py:
+      path: hooks/precompact-autosave.py
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    promise-checker.sh:
+      path: hooks/promise-checker.sh
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    protect-source-files.sh:
+      path: hooks/protect-source-files.sh
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    resume-context-loader.sh:
+      path: hooks/resume-context-loader.sh
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+    startup-context-loader.sh:
+      path: hooks/startup-context-loader.sh
+      clients:
+      - claude
+      requires:
+      - claude-hooks
+      - filesystem
+  rules:
+    audit-before-fix.md:
+      path: rules/audit-before-fix.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    client-guidance-ownership.md:
+      path: rules/client-guidance-ownership.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    design-before-results.md:
+      path: rules/design-before-results.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    doi-verification.md:
+      path: rules/doi-verification.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    latex-hygiene.md:
+      path: rules/latex-hygiene.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    lean-guidance-files.md:
+      path: rules/lean-guidance-files.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    learn-tags.md:
+      path: rules/learn-tags.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    mark-unverified.md:
+      path: rules/mark-unverified.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    no-hardcoded-results.md:
+      path: rules/no-hardcoded-results.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    overleaf-separation.md:
+      path: rules/overleaf-separation.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    paper-code-consistency.md:
+      path: rules/paper-code-consistency.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    plan-first.md:
+      path: rules/plan-first.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    python-uv.md:
+      path: rules/python-uv.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    read-docs-first.md:
+      path: rules/read-docs-first.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    scope-discipline.md:
+      path: rules/scope-discipline.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    severity-gradient.md:
+      path: rules/severity-gradient.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    spec-before-quality.md:
+      path: rules/spec-before-quality.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+    subagent-write-guard.md:
+      path: rules/subagent-write-guard.md
+      clients:
+      - claude
+      - codex
+      requires:
+      - filesystem
+documents:
+  dual-client-ai-control-plane:
+    path: docs/dual-client-ai-control-plane.md

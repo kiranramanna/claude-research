@@ -45,11 +45,11 @@ Use `/anonymous-artifact` to create the repo, sanitize content, push, and submit
 Name: `paper-{theme-abbrev}-{slug}`
 
 Examples:
-- `paper-or-cost-aware-simulation`
-- `paper-or-indifference-adjustments`
+- `paper-or-example-project-d`
+- `paper-or-example-project-f`
 - `paper-bds-identity-belief-alignment`
 
-Theme abbreviations follow the Overleaf naming convention (OR, BDS, ASG, etc.). After acceptance, either rename the Mode-A repo (`gh repo rename`) and flip visibility to public, or create a fresh Mode-B repo and copy content over.
+Theme abbreviations follow the Overleaf naming convention (your own theme codes, e.g. T1, T2). After acceptance, either rename the Mode-A repo (`gh repo rename`) and flip visibility to public, or create a fresh Mode-B repo and copy content over.
 
 Mode A is the default for any pre-acceptance submission. Mode B applies after camera-ready.
 

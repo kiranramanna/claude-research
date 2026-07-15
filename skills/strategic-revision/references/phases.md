@@ -10,7 +10,7 @@
 
 **Goal:** scaffold the output directories and copy (never move) the source PDF.
 
-1. Gather inputs. If not provided, ask via `AskUserQuestion`:
+1. Gather inputs. If not provided, ask the user directly; use the client's structured-input capability when available:
    - Reviews PDF path — try auto-discovery first (`to-sort/*.pdf`, then `correspondence/referee-reviews/{venue}-round{n}/*.pdf`, then `correspondence/referee-reviews/*.pdf`)
    - Project path — auto-detect from cwd if a `CLAUDE.md` or `paper*/` is present
    - Venue slug (e.g., `ejor`, `facct-2026`)
@@ -242,7 +242,7 @@ Write `plan/revision_tasks.json` per the schema in [task-schema.md](task-schema.
 3. Run in validate-only mode:
    ```bash
    cd correspondence/referee-reviews/{venue}-round{n}/plan
-   python dag_validator.py revision_tasks.json --validate-only
+   uv run python dag_validator.py revision_tasks.json --validate-only
    ```
 
 4. Interpret:
@@ -370,7 +370,7 @@ Run the validator in full mode:
 
 ```bash
 cd correspondence/referee-reviews/{venue}-round{n}/plan
-python dag_validator.py revision_tasks.json
+uv run python dag_validator.py revision_tasks.json
 # produces revision_dag_analysis.json
 ```
 

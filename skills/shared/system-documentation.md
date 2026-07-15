@@ -126,7 +126,7 @@ Use `---` to separate major conceptual blocks within a section. Do not use betwe
 ```
 
 **Key constraints:**
-- **Max 200 lines.** Extract anything longer than 15 lines of reference material to `docs/` with a one-line pointer (see `lean-claude-md` rule).
+- **Stay within the guidance budget.** Extract reference material to `docs/` with a one-line pointer (see `lean-guidance-files`).
 - **Instructions, not knowledge.** CLAUDE.md tells Claude what to do and where to look — it doesn't store the knowledge itself.
 - **Pointer pattern:** `Full guidelines: [\`docs/file.md\`](docs/file.md)`
 
@@ -155,7 +155,7 @@ Brief description (1-3 sentences).
 ---
 name: skill-name
 description: "One-line description of what the skill does."
-allowed-tools: Read, Edit, Write, Glob, Grep, Bash(pattern*), AskUserQuestion
+allowed-tools: Read, Edit, Write, Glob, Grep, Bash(pattern*), the available structured-question mechanism
 argument-hint: <topic> [--flag]
 ---
 ```

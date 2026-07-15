@@ -85,7 +85,7 @@ Using the data gathered in Step 2 (items 10-14), check infrastructure file sizes
 
 | File | Threshold | What to flag | Fix |
 |------|-----------|-------------|-----|
-| `CLAUDE.md` | > 200 lines total | Current line count | Extract reference sections to `docs/`, replace with pointers (see `lean-claude-md` rule) |
+| `CLAUDE.md` or `AGENTS.md` | Exceeds the `lean-guidance-files` budget | Current line and word count | Extract reference sections to `docs/`, replace with pointers |
 | `CLAUDE.md` sections | Any `##` section > 15 lines of reference material | Section name + line count | Extract to `docs/` with a one-line summary + link |
 | `CLAUDE.md` duplication | Content duplicated from README/docs/.context | Which content is duplicated and where | Keep only the pointer in CLAUDE.md |
 | `README.md` | > 300 lines total | Current line count | Extract long sections to `docs/` |
@@ -130,7 +130,7 @@ If nothing is stale, report that and stop.
 
 #### Step 5a: Staleness Fixes
 
-Use `AskUserQuestion` to let the user approve, modify, or skip staleness fixes:
+Use `the available structured-question mechanism` to let the user approve, modify, or skip staleness fixes:
 
 - **Apply all** — update everything proposed
 - **Select by file** — choose which files to update
@@ -149,7 +149,7 @@ Leanness fixes available:
 | 2 | skills/X/SKILL.md | >300 lines | 382 | Move checklists → references/ |
 ```
 
-Use `AskUserQuestion` with `multiSelect: true`:
+Use `the available structured-question mechanism` with `multiSelect: true`:
 - **Question:** "Which leanness fixes do you want to apply?"
 - One option per fix with current size and proposed outcome
 - Include an **"All of them"** option as the first choice

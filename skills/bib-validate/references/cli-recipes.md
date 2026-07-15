@@ -56,12 +56,14 @@ paperpile get-items-by-label "project-slug" --json
 
 Use `get-items-by-label` to detect papers in a Paperpile label that aren't cited in the `.tex` — flag as potential missing citations.
 
-## Staged import workflow (write-bib)
+## Staging a genuinely-missing entry (`.paperpile-import/`)
 
-Paperpile CLI is read-only for the library, but can stage a `.bib` file for manual import via the Paperpile app:
+The Paperpile CLI is read-only for the library (no import command). To stage a paper that is NOT in the library, write its BibTeX into a `.bib` under `.paperpile-import/` and mark its draft cite `\CiteTodo{slug}{title; authors; year; DOI}` (build-blocking until imported); the user imports the staged `.bib` into Paperpile manually. See `rules/paperpile-citations.md`.
+
+`paperpile write-bib` only **exports** entries that already exist in the library, by citekey — it cannot stage a missing paper:
 
 ```bash
-paperpile write-bib --path staging.bib --title "Some Paper" --author "Jane Doe" --year 2024 --doi "10.xxxx/yyyy"
+paperpile write-bib --citekeys Smith2020-xy,Doe2019-ab --output-path exported.bib
 ```
 
 ## Graceful degradation
@@ -74,4 +76,4 @@ All commands support `--json` and return structured output. Always pass `--json`
 
 ## Sub-agent pattern
 
-`paperpile` has a CLI frontend, so sub-agents can call it directly (no MCP pre-fetch needed). See `rules/subagent-prompt-discipline.md` for the full list of CLI-fronted packages.
+`paperpile` has a CLI frontend, so sub-agents can call it directly without connector pre-fetch. See `rules/subagent-prompt-discipline.md` for the full list of CLI-fronted packages.

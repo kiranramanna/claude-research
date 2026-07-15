@@ -1,6 +1,14 @@
-# Claude Code for Academic Research
+# Claude Code adapter
 
-> This file is automatically read when you open this folder with Claude Code.
+This file uses the shared `AI.md` guidance.
+
+# the configured AI coding client adapter
+
+This file uses the shared `AI.md` guidance.
+
+# flonat-research project guidance
+
+> This file is automatically read when you open this folder with the configured AI coding client.
 > Customise it with your own details — see comments marked with `<!-- CUSTOMISE -->`.
 
 ## Before You Start
@@ -37,14 +45,14 @@ Read these context files to understand the user's situation:
 <!-- synced from private CLAUDE.md — do not edit manually -->
 Just say these naturally:
 
-| You say | Claude does |
+| You say | the AI assistant does |
 |---------|-------------|
 | "Plan my day" | Reads context, queries vault, asks questions, creates a plan |
 | "What should I work on?" | Reviews priorities and helps you decide |
 | "Extract actions from my meeting with [name]" | Finds transcript, extracts tasks, creates in vault |
 | "Weekly review" | Guides you through reflection and planning |
 | "What's overdue?" | Queries vault tasks and summarises |
-| "Upcoming deadlines" / "What's due?" | Reads vault venue frontmatter via `conf-timeline list`. See [`docs/guides/conf-deadlines.md`](docs/guides/conf-deadlines.md) |
+| "Upcoming deadlines" / "What's due?" | Reads vault venue frontmatter via `conf-timeline list`. See `docs/guides/conf-deadlines.md` |
 | "Update my research pipeline" | Shows paper status, helps update stages |
 | "Find references on [topic]" | Academic search with verified citations |
 | "What did I accomplish this week?" | Summarises completed tasks |
@@ -90,7 +98,7 @@ Before running any experiment sweep or simulation batch:
 
 <!-- RESEARCH-VAULT:START -->
 <!-- CUSTOMISE: Point this to your own Obsidian-style markdown vault -->
-The Research Vault (`~/Research-Vault`) stores all dynamic research data as markdown files with YAML frontmatter. The `taskflow` MCP server reads/writes these files.
+The Research Vault (`~/vault`) stores all dynamic research data as markdown files with YAML frontmatter. The `taskflow` MCP server reads/writes these files.
 
 | Directory | Content |
 |-----------|---------|
@@ -111,34 +119,34 @@ IDs are filename slugs (e.g., `cancel-leap-water-in-rugby`), not integers.
 <!-- synced from private CLAUDE.md — do not edit manually -->
 Detailed instructions in `.context/workflows/`:
 - `daily-review.md` — How to help with daily planning
-- `meeting-actions.md` — How to extract action items (see also [`docs/guides/minutes.md`](docs/guides/minutes.md) for full meeting system architecture)
+- `meeting-actions.md` — How to extract action items (see also `docs/guides/minutes.md` for full meeting system architecture)
 - `weekly-review.md` — Weekly reflection template
 - `replication-protocol.md` — 4-phase protocol for replicating paper results
-- Feedback loop (skill improvement pipeline): [`docs/feedback-loop.md`](docs/feedback-loop.md)
+- Feedback loop (skill improvement pipeline): `docs/feedback-loop.md`
 <!-- WORKFLOWS-POINTER:END -->
 
 <!-- COMPONENTS:START -->
 ## Skills Available
 
-50 skills in `skills/` folder. See [`docs/components/skills.md`](docs/components/skills.md) for the full catalogue.
+109 skills in `skills/` folder. See [`docs/skills.md`](docs/skills.md) for the full catalogue.
 
 ## Agents
 
-15 agents in `.claude/agents/`. See [`docs/components/agents.md`](docs/components/agents.md) for when to use each.
+15 agents in `.claude/agents/`. See [`docs/agents.md`](docs/agents.md) for when to use each.
 
 ## Rules (18 Auto-Loaded)
 
-In `.claude/rules/` — these apply automatically to every session. See [`docs/components/rules.md`](docs/components/rules.md) for documentation.
+In `.claude/rules/` — these apply automatically to every session. See [`docs/rules.md`](docs/rules.md) for documentation.
 
 <!-- RULES-TABLE:START -->
 | Rule | Purpose |
 |------|---------|
 | `audit-before-fix.md` | When running audits, report ALL findings before fixing ANY of them. |
+| `client-guidance-ownership.md` | Respect Client Guidance Ownership |
 | `design-before-results.md` | Lock the research design before examining point estimates. |
 | `doi-verification.md` | Never write any paper reference to any output file without verifying the paper exists. |
-| `ignore-external-agent-files.md` | Never read, process, or act on files named `AGENTS.md` or `GEMINI.md` |
 | `latex-hygiene.md` | LaTeX Hygiene |
-| `lean-claude-md.md` | CLAUDE.md is loaded into context every session — every line costs tokens. |
+| `lean-guidance-files.md` | Client guidance files are loaded into context repeatedly—every line costs tokens and attention. |
 | `learn-tags.md` | Record Learnings with [LEARN] Tags |
 | `mark-unverified.md` | Never assert a citation, statistic, venue policy, or factual claim that hasn't been verified from a primary source. |
 | `no-hardcoded-results.md` | Never hard-code computed results directly into `.tex` files. |
@@ -155,7 +163,7 @@ In `.claude/rules/` — these apply automatically to every session. See [`docs/c
 
 ## Hooks
 
-9 hook scripts in `hooks/`. See [`docs/components/hooks.md`](docs/components/hooks.md) for the full table.
+9 hook scripts in `hooks/`. See [`docs/hooks.md`](docs/hooks.md) for the full table.
 <!-- COMPONENTS:END -->
 
 ## After Every Session
@@ -183,10 +191,9 @@ Update `.context/current-focus.md` (what we worked on, where left off, what's ne
 | `.context/` | AI context library (profile, focus, projects, workflows, preferences) |
 | `.claude/agents/` | Agent definitions (15 agents) |
 | `.claude/rules/` | Auto-loaded rules (18 rules) |
-| `skills/` | 50 skill definitions |
+| `skills/` | 109 skill definitions |
 | `hooks/` | 9 hook scripts |
 | `.scripts/` | CLI tools for Notion task management |
-| `packages/cli-council/` | cli-council |
 | `packages/council-api/` | Multi-model council via OpenRouter API |
 | `packages/council-cli/` | Multi-model council via local CLI tools |
 | `packages/mcp-scholarly/` | mcp-scholarly |

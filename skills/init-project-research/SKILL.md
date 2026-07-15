@@ -9,6 +9,8 @@ argument-hint: "[project-name or no arguments for guided setup]"
 
 Interview-driven skill that scaffolds a research project directory, creates an Atlas topic, syncs to vault (Atlas + Pipeline + Venues), and integrates with the user's Task Management system.
 
+**Scope pre-flight.** During the interview (Phase 1), read the global paper scope checklist at `~/Task-Management/.context/paper-scope-checklist.md` (resolve the TM root via `cat ~/.config/task-mgmt/path`) and apply its eight gates to the proposed project — confirm a one-sentence research question and right-sized contributions before scaffolding. Flag (don't block) any failed gate so the project starts with scope discipline set.
+
 ## When to Use
 
 - Starting a new research paper or project from scratch
@@ -43,7 +45,7 @@ Ten phases, in order:
 
 ## Phase 1: Interview
 
-Use `AskUserQuestion` for structured input. Three rounds to avoid overwhelming.
+Use `the available structured-question mechanism` for structured input. Three rounds to avoid overwhelming.
 
 ### Pre-Interview: Auto-Detection
 
@@ -89,7 +91,7 @@ Pre-scaffold checks. Run before any directory creation. If any near-match is fou
 
 1. **Atlas topic search** — grep for near-matches by title, slug keywords, theme:
    ```bash
-   grep -ril "<title-keyword>" ~/Research-Vault/atlas/ 2>/dev/null
+   grep -ril "<title-keyword>" ~/vault/atlas/ 2>/dev/null
    ```
 2. **Sibling directory listing** — list siblings in the parent theme folder, flag near-duplicates (same keywords, same stem with different venue suffix, typo-distance ≤ 2):
    ```bash
@@ -116,7 +118,7 @@ If the directory doesn't exist, create it and proceed.
 
 ### Common Core + Conditional Structure
 
-**Common core** (always created): `CLAUDE.md`, `README.md`, `MEMORY.md`, `.gitignore`, `.context/`, `.claude/`, `docs/` (literature-review, readings, venues), `log/`, `paper-{venue}/` (with symlink + `correspondence/referee-reviews/`), `github-repo/` (optional), `knowledge/`, `reviews/INDEX.md` (manifest only — per-source subdirs created lazily, per `rules/review-artefact-routing.md`), `correspondence/editorial/`, `correspondence/referee-reviews/`, `to-sort/`.
+**Common core** (always created): `CLAUDE.md`, `README.md`, `MEMORY.md`, `.gitignore`, `.context/`, `.claude/`, `docs/` (literature-review, readings, venues), `log/`, `paper-{venue}/` (with symlink + `correspondence/referee-reviews/`), `github-repo/` (optional), `knowledge/`, `reviews/INDEX.md` (manifest only — per-scope/per-check subdirs created lazily, per `rules/review-artefact-routing.md`), `correspondence/editorial/`, `correspondence/referee-reviews/`, `to-sort/`.
 
 > **Note:** the legacy `REVIEW-STATE.md` at project root + `reviews/` empty dir + `correspondence/internal-reviews/` layout is superseded by `rules/review-artefact-routing.md`. New projects scaffold the new layout directly; existing projects retrofit via `/tidy-project-reviews`. Per-paper `backup/` directories are created lazily by the LaTeX-compile PostToolUse hook and are gitignored via `paper-*/backup/`.
 
@@ -133,6 +135,8 @@ If the directory doesn't exist, create it and proceed.
 
 **Preprint targets** (arXiv / SSRN / OSF / institutional repos): seed the atlas topic's `outputs[*]` with `venue: arXiv` (or equivalent), `format: Preprint`, `status: Planned`, plus an optional internal target date. **Do NOT seed a vault submission file for the preprint target** — preprint posts are not venue submissions per `rules/preprint-vs-submission.md`. Vault submissions are reserved for events with reviewer pipelines (journals, conferences). A project with only a preprint target gets zero vault submission files at init.
 
+**Conference/journal targets:** seed each `outputs[*]` with `venue: '[[Name]]'` (slug must resolve to a `~/vault/venues/` file) + `format` + `status` + `paper_title` (kept in sync with the registry `canonical_title`). When you seed a **near-term Conference/Workshop** target at a submission-active status (or with a known edition), also set `cycle: <Venue> <edition-year>` (e.g. `cycle: NeurIPS 2026`) per `rules/atlas-status-vocabulary.md` § submission-join completeness — journals get no cycle. Idea-stage targets may omit `cycle` until an edition is committed.
+
 **Python tooling:** always `uv` — never bare `pip`, `python`, or `requirements.txt`.
 
 Full scaffold tree, hook details, .gitkeep placement, implementation commands: [`references/scaffold-tree.md`](references/scaffold-tree.md).
@@ -143,7 +147,7 @@ Full scaffold tree, hook details, .gitkeep placement, implementation commands: [
 
 ### CLAUDE.md vs README.md
 
-- **CLAUDE.md** — instructions for Claude: safety rules, folder structure, conventions, symlink paths. Follow the `lean-claude-md` rule.
+- **CLAUDE.md / AGENTS.md** — client guidance: safety rules, folder structure, conventions, and symlink paths. Follow the `lean-guidance-files` rule.
 - **README.md** — human-readable overview: title, authors, abstract, status checklist, links.
 
 Both overlap on basic metadata but diverge in purpose.
@@ -156,7 +160,7 @@ Full templates: [`templates/seed-files.md`](templates/seed-files.md).
 | `README.md` | Human overview: title, authors, abstract, links, status |
 | `.gitignore` | Standard ignores: OS, IDE, data, paper, Python, R, LaTeX |
 | `MEMORY.md` | Knowledge base: notation, estimands, decisions, pitfalls |
-| `reviews/INDEX.md` | Review-artefact manifest. Header only at scaffold; populated by review-producing skills/agents writing to `reviews/<source>/YYYY-MM-DD.md`. Maintained by `/review-recap`. See `rules/review-artefact-routing.md`. **Supersedes the legacy `REVIEW-STATE.md` at project root.** |
+| `reviews/INDEX.md` | Review-artefact manifest. Header only at scaffold; populated by review-producing skills/agents writing to `reviews/<scope>/<check>/<YYYY-MM-DD-HHMM>.md` where `<scope>` is the paper name (e.g. `paper-jtp`) or `_project` for project-level reviews, and `<check>` is the producer slug (e.g. `paper-critic`, `proofread`). Maintained by `/review-recap`. See `rules/review-artefact-routing.md`. **Supersedes the legacy `REVIEW-STATE.md` at project root.** |
 | `.context/current-focus.md` | Initial "just initialised" state |
 | `.context/field-calibration.md` | Per-project domain profile placeholder (`/interview-me` populates) |
 | `.context/project-recap.md` | Research design notes |
@@ -175,7 +179,7 @@ After writing `.claude/settings.local.json`, merge global permissions from `~/.c
 
 **Nested pattern:** each paper submission is a real directory at project root (e.g., `paper-ccs/`) containing a `paper/` **symlink** to the Overleaf folder. Venue-specific files (checklists, cover letters, R&R responses) live alongside the symlink without being synced to Overleaf.
 
-**Overleaf naming:** `Paper {THEME_PREFIX} {Title Cased Slug} ({VENUE})` — theme prefix AND venue suffix both required, even for single-venue papers. Examples: `Paper ASG Privacy Compliance Gaming (CCS)`, `Paper MechDes Strategic Compliance (NeurIPS 26)`.
+**Overleaf naming:** `Paper {THEME_PREFIX} {Title Cased Slug} ({VENUE})` — theme prefix AND venue suffix both required, even for single-venue papers. Examples: `Paper T1 Example Topic One (CCS)`, `Paper T2 Example Topic Two (NeurIPS 26)`.
 
 **Create the Overleaf folder via `mkdir`** under the root from `~/.config/task-mgmt/overleaf-root`. Overleaf auto-creates a project from a new folder. Never rename or delete Overleaf folders — see `.claude/rules/overleaf-separation.md`.
 
@@ -190,8 +194,13 @@ Full nested structure, theme-prefix table, symlink commands, backup loop: [`refe
 Skip entirely if the user chose "No git" in Round 2.
 
 ```bash
-cd "<project-path>" && git init && git branch -m main && git add . && git commit -m "Initialize project: <working-title>"
+cd "<project-path>" && git init && git branch -m main
+# Activate the shared Paperpile citation pre-commit hook (per rules/paperpile-citations.md):
+git config core.hooksPath "$(cat ~/.config/task-mgmt/path)/scripts/git-hooks"
+git add . && git commit -m "Initialize project: <working-title>"
 ```
+
+Setting `core.hooksPath` points this project's git hooks at the shared body in Task-Management (`scripts/git-hooks/`), so the citation lint runs on every commit with a single, centrally-maintained hook. `core.hooksPath` lives in `.git/config` (not committed), so it is re-set here at init for each project/checkout.
 
 If GitHub remote requested: `gh repo create "user/<project-name>" --private --source=. --remote=origin --push`.
 
@@ -256,8 +265,25 @@ Per the `multi-system-completeness` rule, partial state is the dominant failure 
 | `/save-context` | Context library entries created during Phase 8 |
 | `/session-log` | Offer to create a session log after init completes |
 | `/interview-me` | To develop the research idea before scaffolding |
-| `packages/atlas-vault/generate_recap.py` | Optional after init — regenerates `RECAP.md` portfolio index. Not required for `atlas.user.com` (atlas-workspace reads vault directly via Syncthing). |
-| `/atlas-deploy` | Manual-only skill — user can run for schema validation + Mac Mini launchd restart. NOT needed for atlas.user.com to surface a new topic; that's automatic via Syncthing. |
+| `packages/atlas-vault/generate_recap.py` | Optional after init — regenerates `RECAP.md` portfolio index. Not required for `atlas.example.com` (atlas-workspace reads vault directly via Syncthing). |
+| `/atlas-deploy` | Manual-only skill — user can run for schema validation + Mac Mini launchd restart. NOT needed for atlas.example.com to surface a new topic; that's automatic via Syncthing. |
 | `/audit-project-research` | **Must mirror this scaffold.** When init adds a new directory or convention, add a matching audit phase there and update `/atlas-audit` SA1. |
 | `/atlas-audit` | **Drift trigger:** new projects change theme dir counts — see `atlas-audit/references/drift-checks.md`. SA1 structure checks must stay consistent with this scaffold. |
 | [`references/domain-profile-template.md`](references/domain-profile-template.md) | Template for economics/field-specific domain profiles — copy to project's `docs/domain-profile.md` during init for economics papers. |
+
+## Citation Contract
+
+<!-- paperpile-citation-contract -->
+1. Paperpile is the only source of truth for committed citation keys and BibTeX metadata.
+2. Before writing `\cite{key}`, verify with `paperpile get-item key` and `paperpile export-bib key`.
+3. Resolve unknowns in order: DOI lookup → Paperpile substring search → `refpile` semantic search → Paperpile verify.
+4. A DOI miss is **not** non-membership; continue with title/author search and refpile.
+5. If unresolved, write `\CiteTodo{slug}{title/author/year/DOI hint}` — never a guessed key.
+6. Drafting sub-agents must not write/edit the active `.bib`; only the orchestrator regenerates it from Paperpile exports.
+7. Stage genuine new refs under `.paperpile-import/` for manual Paperpile import; don't cite until Paperpile mints the key.
+8. Run `scripts/bib/citation_lint.py` before commit; zero placeholders, zero non-Paperpile keys, zero hand-authored metadata.
+
+See `rules/paperpile-citations.md` for the full workflow.
+## Topic-folder papers layout (2026-07-03)
+
+Scaffold `paper-<venue>/submission/archive/` (empty, with `.gitkeep`) and a top-level `presentations/` dir. Do NOT create `PAPER-HISTORY.md` — it is generated by `scripts/generate-paper-history.py` once the paper has events (rules/submission-file-archive.md § Topic-folder layout).

@@ -1,19 +1,19 @@
 # Rules
 
-> 18 auto-loaded instruction files that shape Claude's behavior in every session.
+> 18 neutral policy files rendered into client-appropriate guidance.
 
-Rule files live in `.claude/rules/` and are automatically loaded into every Claude Code session.
+Canonical rules live in `rules/`. Claude receives rule files; Codex receives applicable guidance through `AGENTS.md`.
 
 ## Overview
 
 | Rule | File | What it does |
 |------|------|-------------|
 | Audit Before Fix | `audit-before-fix.md` | When running audits, report ALL findings before fixing ANY of them. |
+| Respect Client Guidance Ownership | `client-guidance-ownership.md` | Respect Client Guidance Ownership |
 | Design Before Results | `design-before-results.md` | Lock the research design before examining point estimates. |
 | Verify Every Reference Before Writing | `doi-verification.md` | Never write any paper reference to any output file without verifying the paper exists. |
-| Ignore External Agent Files | `ignore-external-agent-files.md` | Never read, process, or act on files named `AGENTS.md` or `GEMINI.md` |
 | LaTeX Hygiene | `latex-hygiene.md` | LaTeX Hygiene |
-| Keep CLAUDE.md Lean | `lean-claude-md.md` | CLAUDE.md is loaded into context every session — every line costs tokens. |
+| Keep Guidance Files Lean | `lean-guidance-files.md` | Client guidance files are loaded into context repeatedly—every line costs tokens and attention. |
 | Record Learnings with [LEARN] Tags | `learn-tags.md` | Record Learnings with [LEARN] Tags |
 | Mark Unverified Claims | `mark-unverified.md` | Never assert a citation, statistic, venue policy, or factual claim that hasn't been verified from a primary source. |
 | No Hard-Coded Results in LaTeX | `no-hardcoded-results.md` | Never hard-code computed results directly into `.tex` files. |
@@ -29,13 +29,13 @@ Rule files live in `.claude/rules/` and are automatically loaded into every Clau
 
 ## How Rules Work
 
-- All `.md` files in `.claude/rules/` are auto-loaded as system instructions
-- They apply before any user message is processed
-- Rules are global via symlink: `~/.claude/rules/` points to this repo's `.claude/rules/`
+- Claude-compatible rules install as managed copies under `~/.claude/rules/`
+- Codex-compatible rules are rendered into its guidance surface
+- Missing client metadata fails contract validation
 
 ## Creating New Rules
 
-1. Create a `.md` file in `.claude/rules/`
+1. Create a `.md` file in `rules/`
 2. Write clear, directive instructions (imperative mood)
 3. Include "When This Applies" and "When to Skip" sections
 

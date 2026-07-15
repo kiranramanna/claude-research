@@ -6,7 +6,13 @@
 
 ## Core Concept: Cross-Model Agentic Invocation
 
-Claude Code can invoke other LLM providers' CLI tools as subprocess reviewers — a different model reviews work that Claude produced, providing genuine architectural diversity. The system is **extensible**: any CLI tool that accepts a prompt and returns text can be wrapped as a backend (~20 lines of Python following the `BackendSpec` pattern in `packages/council-cli/`). Available backends change as subscriptions change; the architecture does not.
+The active client can invoke other LLM providers' CLI tools as subprocess
+reviewers. A different model reviews work produced in the active session,
+providing genuine architectural diversity. The system is **extensible**: any
+CLI tool that accepts a prompt and returns text can be wrapped as a backend
+(~20 lines of Python following the `BackendSpec` pattern in
+`packages/council-cli/`). Available backends change as subscriptions change;
+the architecture does not.
 
 ## What Council Mode Is
 
@@ -25,11 +31,11 @@ The key insight: genuine model diversity (different architectures, training data
 Package: `packages/council-cli/`
 
 - `CouncilRunner` — orchestrator that invokes CLI backends via subprocess
-- Pluggable backends: `GeminiBackend`, `ClaudeBackend`, and a dormant `CodexBackend` (OpenAI subscription cancelled Mar 2026; resubscribing would restore it). New backends follow the same `BackendSpec` pattern.
+- Pluggable backends: `GeminiBackend`, `CodexBackend`, `ClaudeBackend`. New backends follow the same `BackendSpec` pattern.
 - `CouncilResult` — Pydantic models for text-based results
-- CLI — `python -m council_cli` for standalone use
+- CLI — `uv run python -m council_cli` for standalone use
 - Uses existing subscriptions — no per-token API costs
-- **Currently active backends:** Gemini (`gemini -p`), Claude (`claude -p`)
+- **Backend availability changes with auth/subscription state — never assume it from this doc; run the preflight step below.** (Known state 2026-07-02, see auto-memory `cli-council-backend-state`: claude OK with `ANTHROPIC_API_KEY` unset; gemini blocked pending Antigravity migration; codex subscribed but locally unstable.)
 - **Best for:** Ad-hoc reviews, research tasks, quick multi-perspective opinions
 
 ### API Backend: `council-api` (Optional, Separate Install)
@@ -39,7 +45,7 @@ Package: `packages/council-cli/`
 - `LLMClient` — generic async OpenRouter client with JSON/text chat and retry logic
 - `CouncilService` — 3-stage orchestration engine with customisable Stage 2/3 prompts
 - `CouncilResult` — Pydantic models for structured JSON results
-- CLI — `python -m council_api` for standalone use
+- CLI — `uv run python -m council_api` for standalone use
 - Requires `OPENROUTER_API_KEY` in the environment
 - **Best for:** Automated pipelines, structured JSON output, programmatic integration
 
@@ -65,10 +71,13 @@ Package: `packages/council-cli/`
 
 ## Parallel Independent Review
 
-Beyond multi-model council mode, review agents can also be launched **in parallel** within a single Claude Code session for maximum coverage from different perspectives:
+Beyond multi-model council mode, review workers can also be launched **in
+parallel** within one client session for maximum coverage from different
+perspectives:
 
 1. **Pre-flight:** Launch `fatal-error-check` first (haiku model, ~15-30 seconds). If it returns FAIL, fix the fatal errors before proceeding.
-2. **Parallel launch:** If the pre-flight passes, launch all three review agents simultaneously in a **single message** with three Agent tool calls:
+2. **Parallel launch:** If the pre-flight passes, launch all three review
+   workers simultaneously in one parallel fresh-context delegation batch:
    - `paper-critic` — adversarial LaTeX audit (grammar, notation, citation, tone, LaTeX, TikZ)
    - `domain-reviewer` — substantive correctness (assumptions, derivations, citations, code-theory, backward logic)
    - `referee2-reviewer` — full Reviewer 2 audit (identification, methods, robustness, presentation, scholarly rigour)
@@ -102,6 +111,12 @@ The **main session** orchestrates council mode. Review agents cannot orchestrate
 
 ### Pre-flight
 
+0. **Verify backends BEFORE Stage 1** (real incident 2026-07-02: all three CLI backends failed at full cost — `log/incidents/2026-07-02_council-backend-failures.md` in the PRIMA project):
+   - Run `uv run python -m council_cli --check`, then smoke-test each backend with its known-good invocation: claude → `env -u ANTHROPIC_API_KEY claude -p "OK"` (env-exported API keys silently hijack subscription auth); agy (Antigravity CLI, replaced the retired gemini backend 2026-07-03) → `agy -p "OK"` — CAUTION: unauthenticated agy exits 0 with NO output in non-TTY contexts, so an empty response means "run `agy` once interactively to OAuth", not "backend fine"; codex → allow ≥120 s even for trivial prompts.
+   - Size `--timeout` to the payload: ≥600 s per call for contexts over ~20k tokens.
+   - Proceed only with ≥2 live backends; otherwise report which backend is down and why (one line each) instead of running a degraded council silently.
+   - CLI billing/quota error strings identify the *account that answered*, not the user's subscription state — retest with the env key unset before diagnosing.
+0b. **Spend boundary:** escalating from `council-cli` (subscription-funded) to `council-api` (per-token OpenRouter) substitutes a PAID product — it requires explicit user approval, never a silent fallback.
 1. Run the consumer's standard pre-checks and hard gates
 2. If any gate fails, report immediately — do not invoke the council (save cost)
 3. Collect all source material (file contents, logs, rubrics) into a system prompt and user message
@@ -189,7 +204,9 @@ uv run python -m council_cli \
 
 - Write the paper content / review instructions to `--context-file`, and the specific question to `--prompt-file`
 - Output is free-form text — the markdown report (`--output-md`) is usually more useful than JSON
-- The chairman backend defaults to `claude` (since we're already in Claude Code)
+- The chairman backend defaults to `claude` for compatibility with the
+  historical CLI-council configuration; this is independent of which client
+  runs the orchestration.
 
 ### Option B: API Backend (`council-api` — Separate Install)
 
@@ -238,7 +255,8 @@ The library's `config.py` contains the full model registry (17 models across Ant
 
 Council mode costs significantly more than standard mode because it calls N models for Stage 1, N models for Stage 2, and 1 model for Stage 3 (total: 2N+1 API calls). With 3 models:
 
-- **Standard mode:** 1 agent call (free — uses Claude Code context)
+- **Standard mode:** 1 fresh-context worker call (uses the active client's
+  included execution surface)
 - **Council mode:** 7 OpenRouter API calls (3 + 3 + 1)
 
 Pricing depends on the models chosen. Check OpenRouter for current rates. Use council mode when thoroughness justifies the cost — typically pre-submission or high-stakes reviews.
@@ -258,7 +276,7 @@ Current approach: the same system prompt goes to all models. Personas are docume
 | `domain-reviewer` | Supported | — | Math/assumption checking — different models catch different derivation gaps |
 | `proposal-reviewer` | Supported | — | Feasibility and novelty — different models have different domain knowledge |
 | `peer-reviewer` | Supported | — | Full paper review — the canonical use case for multi-model deliberation |
-| `multi-perspective` | Supported | — | Replaces Claude-only sub-agents with genuine model diversity |
+| `multi-perspective` | Supported | — | Replaces single-provider workers with genuine model diversity |
 | `literature` | Implemented | — | Phase 2b (search) and Phase 7 (synthesis) — see skill definition |
 | `devils-advocate` | Supported | — | Round 1/2/3 played by different models for genuine adversarial tension |
 | `proofread` | Supported | — | Lower value — most useful for notation consistency and citation voice balance |

@@ -1,20 +1,20 @@
 ---
 name: bib-validate
-description: "Cross-reference \\cite{} keys against .bib files or embedded \\bibitem entries. Finds missing, unused, and typo'd citation keys. Deep verification mode spawns parallel agents for DOI/metadata validation at scale. Fix mode auto-adds missing entries to Paperpile."
-allowed-tools: Read, Glob, Grep, Task, Write, Bash(mkdir*), Bash(ls*), Bash(rm*), Bash(paperpile*)
+description: "Use when you need to validate a paper's bibliography — cross-references \\cite{} keys against .bib files or embedded \\bibitem entries, finds missing/unused/typo'd keys, and checks every key against the Paperpile library via the local resolver. Deep verification mode spawns parallel agents for DOI/metadata validation at scale. Fix mode rekeys drifted keys to canonical and stages missing entries for Paperpile."
+allowed-tools: Read, Glob, Grep, Task, Write, Bash(mkdir*), Bash(ls*), Bash(rm*), Bash(paperpile*), Bash(uv:*), Bash(latexmk*)
 argument-hint: "[project-path or tex-file] [--verify-doi] [--fix]"
 ---
 
 # Bibliography Validation
 
-**LIBRARY-FIRST RULE: ALWAYS cross-reference cited keys against Paperpile (`paperpile search-library`) during validation.** This catches drift between the `.bib` file and the reference manager. See the Reference Manager Cross-Reference section.
+**LIBRARY-FIRST RULE: ALWAYS cross-reference all `.bib` keys against Paperpile during validation** — via ONE dry-run of `scripts/bib/rekey_to_canonical.py` (Task-Management; matches the local library JSON in ~5s), NOT per-key `paperpile search-library` loops or lookup sub-agents. This catches key drift between the `.bib` file and the reference manager. See the Reference Manager Cross-Reference section.
 
 ## Output Path
 
 Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-scoped to `paper-*/` and `paper/`)):
 
 - **Source slug:** `bib-validate`
-- **Write reports to:** `reviews/bib-validate/YYYY-MM-DD.md` inside the project. Path is relative to the research project root, not the Task-Management repo.
+- **Write reports to:** `reviews/<paper-slug>/bib-validate/<YYYY-MM-DD-HHMM>.md` inside the project (where `<paper-slug>` is the paper directory slug, e.g., `paper-jtp`, `paper-philtech`). Path is relative to the research project root, not the Task-Management repo.
 - **Never** at project root (`./CRITIC-REPORT.md`-style filenames are forbidden — pre-rule layout).
 - **Idempotency:** if today's file exists, append a same-day descriptor (`{date}-revision.md`, `{date}-r2.md`, `{date}-pre-submission.md`) — never overwrite.
 - **Index update:** if `reviews/INDEX.md` exists, write a one-line entry under "Latest per source" pointing at the new file. Otherwise `/review-recap` will rebuild the index next time it runs.
@@ -27,7 +27,7 @@ Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-sc
 |---|---|
 | `/bib-validate` | Standard: cross-reference \cite{} ↔ .bib, library check, preprint staleness |
 | `/bib-validate --verify-doi` | **Adds DOI resolution**: each `@article`/`@inproceedings` entry gets its DOI checked via `scholarly scholarly-verify-dois`. Bib entries with no DOI or unresolvable DOIs are flagged. Use before submission to catch fabricated/hallucinated entries. |
-| `/bib-validate --fix` | Auto-fixes resolvable issues in the project `.bib` and stages missing entries as a `paperpile-stage-*.bib` for manual Paperpile import. The Paperpile CLI is read-only — it cannot write to the library, so additions are staged, not auto-inserted. |
+| `/bib-validate --fix` | Auto-fixes resolvable issues in the project `.bib`; genuinely-missing entries are staged under `.paperpile-import/` with their draft cites marked `\CiteTodo{...}` (build-blocking) for manual Paperpile import. The Paperpile CLI is read-only — it cannot write to the library, so additions are staged, not auto-inserted. |
 | Combine: `--verify-doi --fix` | Verify, then fix unverified entries by re-fetching from Crossref |
 
 ## When to Use
@@ -41,7 +41,7 @@ Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-sc
 
 - **Finding new references** — use `/literature` for discovery
 - **Building a bibliography from scratch** — use `/literature` with `.bib` generation
-- **General proofreading** — use `/proofread` (which also flags citation format issues)
+- **General proofreading** belongs to `/proofread` (which also flags citation format issues)
 
 ## Phase 0: Session Log (Suggested)
 
@@ -118,30 +118,28 @@ Also handle **multi-key citations**: `\citep{key1, key2, key3}`
 
 ## Cross-Reference Checks
 
-### Critical: Self-citation deanonymization (double-blind submissions only)
+### Self-citation handling (double-blind submissions only)
 
-When `--double-blind` is set OR when a `paper-*` directory's vault submission frontmatter shows the venue is double-blind, run a self-citation scan in addition to the standard checks.
+When `--double-blind` is set OR when a `paper-*` directory's vault submission frontmatter shows the venue is double-blind, run a self-citation scan. **Default expectation: the author CAN and SHOULD cite their own prior work — keep the real bib entry and cite it in the third person.** Anonymity comes from removing the author block, not from blinding the bibliography; a `{Anonymous}` entry actually *advertises* the self-citation. See `rules/double-blind-self-citation.md` and `_shared/double-blind-anonymity-checklist.md` §P4–P5.
 
-1. **Load submission author list.** Read `~/Research-Vault/submissions/<paper-slug>-<venue>-<year>.md` `authors:` / `coauthors:` field. If absent, prompt: `Submission author surnames (comma-separated):`. Refuse to proceed without a non-empty list.
-2. **For each `.bib` entry, parse the `author = {...}` field.** Tokenize by `and` and extract surnames.
-3. **Compare against the submission author list.** If the cited entry's author surnames are a *subset* of the submission's (or the cited entry has authors that exactly match), flag the citation.
-4. **Severity: Critical.** Self-citation by name is a desk-reject trigger at every major double-blind security/ML venue (CCS, NDSS, S&P, USENIX, ICML, NeurIPS, ICLR). Third-person grammar in the body text alone does NOT cure the issue when the bib entry itself names the authors — see `_shared/double-blind-anonymity-checklist.md` §P4.
-5. **Output format:**
+1. **Load submission author list.** Read `~/vault/submissions/<paper-slug>-<venue>-<year>.md` `authors:` / `coauthors:` field. If absent, prompt: `Submission author surnames (comma-separated):`.
+2. **Identify self-citations.** For each `.bib` entry, parse `author = {...}`, tokenize by `and`, extract surnames; mark entries whose authors overlap the submission's as *self-citations* — these are expected, not violations.
+3. **Scan the `.tex` body near each self-cite `\cite{<key>}` (±200 chars) for FIRST-PERSON voice** — "our"/"we previously"/"in earlier work of ours". That first-person voice is the actual de-anonymizer, not the names.
+4. **Severity:**
+   - **Info / no action** — self-citation cited in the third person with the real entry kept. This is the correct finished state. Naming the authors ("[Author] and [Collaborator] [2] show X") in the third person is fine.
+   - **Critical** — first-person voice near a self-cite → rewrite to third person (the citation and the real entry stay).
+   - **Critical (CFP-conditional)** — *only* if the venue's CFP explicitly requires anonymizing self-citations (some security venues, e.g. CCS) → then also blind the entry. Do **not** blind by default.
+5. **Output format (first-person-voice case):**
    ```
-   ⚠ SELF-CITATION DEANONYMIZATION (Critical)
-     references.bib:42  burnat2026paradox
-       authors:    the user A D Burnat and Brittany I [Collaborator]
-       overlaps:   Burnat (1/1), [Collaborator] (1/1) → ALL submission authors named
-       remediation:
-         author = {Anonymized for double-blind review},
-         title  = {Title withheld; preprint anonymized},
-         note   = {Anonymized self-citation}
-       AND in the body text, replace any "Burnat and [Collaborator] [N]" with
-                            "Prior work by the authors [N]" or similar.
+   ⚠ FIRST-PERSON SELF-REFERENCE (Critical)
+     intro.tex:88  near \cite{smith2026paradox}
+       "in our prior work [12] we showed..."
+       fix: third person — "Prior work [12] showed..."  (citation + real entry stay)
    ```
-6. **Also scan `.tex` body** near each flagged `\cite{<key>}` for any of the cited entry's surnames within ±200 chars. Flag those occurrences with file:line so the user can de-name the prose alongside the bib fix.
+   For the CFP-mandated-blinding exception only, additionally anonymize the entry:
+   `author = {Anonymized for double-blind review}`, `title = {Title withheld}`, `note = {Anonymized self-citation}`.
 
-This check is a desk-reject prevention gate (see incident log in `_shared/double-blind-anonymity-checklist.md`). Run it before the standard cross-reference checks so the user sees the most-severe finding first.
+This is a **venue-conditional** check, not an unconditional desk-reject gate. Run it with the standard cross-reference checks.
 
 ### Critical: Missing Entries
 
@@ -172,9 +170,13 @@ Common typo patterns:
 
 ## Reference Manager Cross-Reference
 
-After the disk-based cross-reference, check each cited key against Paperpile. Produces a status table (HEALTHY / DRIFT / EXPORT_GAP / MISSING).
+After the disk-based cross-reference, check every `.bib` key against the Paperpile library with ONE dry-run of the canonical resolver:
 
-Full steps, MCP calls, and status categories: [`references/ref-manager-crossref.md`](references/ref-manager-crossref.md)
+```bash
+uv run python "$(cat ~/.config/task-mgmt/path)/scripts/bib/rekey_to_canonical.py" <project.bib>
+```
+
+Produces the full status table (HEALTHY / DRIFT / SUGGESTED / AMBIGUOUS / NOT_FOUND) in ~5s with no per-key CLI calls. Fallback lookups, status semantics, and staleness caveat: [`references/ref-manager-crossref.md`](references/ref-manager-crossref.md)
 
 ## Quality Checks on .bib Entries
 
@@ -248,7 +250,7 @@ For high-stakes submissions. Trigger: "council bib-validate", "thorough bib chec
 
 ## Fix Mode
 
-After producing the validation report, automatically fix resolvable issues in the project `.bib` (DRIFT → correct the BibTeX; MISSING → search + add to the `.bib`, then stage for Paperpile import via `paperpile write-bib`; MIGRATE → stage updated entry; metadata → correct BibTeX). Library additions are *staged* as a `paperpile-stage-*.bib` for manual import — the Paperpile CLI is read-only.
+After producing the validation report, automatically fix resolvable issues. **DRIFT (paper in library under a different key) → the verified rekey chain:** `rekey_to_canonical.py --apply` (remaps `\cite` keys in `.tex`; `--extra-map` for confirmed SUGGESTED/AMBIGUOUS cases) → `rebuild_paperpile_bib.py <bib>` (regenerates the `.bib` from canonical Paperpile exports) → `citation_lint.py` → `latexmk` compile check. NOT_FOUND → search, then stage the entry as a `.bib` under `.paperpile-import/` and replace its draft cite with `\CiteTodo{slug}{title; authors; year; DOI}` (build-blocking until imported); metadata → correct BibTeX. Library additions are *staged* under `.paperpile-import/` for manual import — the Paperpile CLI is read-only (no import command; `paperpile write-bib --citekeys` only exports entries already in the library).
 
 Full auto-fix actions, post-fix maintenance, and skip conditions: [`references/fix-mode.md`](references/fix-mode.md)
 
@@ -267,16 +269,16 @@ Compute the score and include the Score Block in the report after the summary ta
 
 ## Log to REVIEW-STATE.md (final step)
 
-Write the bib-validate report to `reviews/bib-validate/<YYYY-MM-DD-HHMM>.md` (`mkdir -p reviews/bib-validate/` first). Then append a row to the project's `REVIEW-STATE.md`:
+Write the bib-validate report to `reviews/<paper-slug>/bib-validate/<YYYY-MM-DD-HHMM>.md` (where `<paper-slug>` is the paper directory slug, e.g., `paper-jtp`, `paper-philtech`; create `mkdir -p reviews/<paper-slug>/bib-validate/` first). Then append a row to the project's `REVIEW-STATE.md`:
 
 ```bash
-bash ~/.claude/skills/_shared/review-state-log.sh \
+bash <skills-root>/_shared/review-state-log.sh \
   --check bib-validate \
   --paper "<paper-{venue} dir>" \
   --verdict "<PASS|ISSUES FOUND>" \
   --score "<numeric score from quality-scoring framework, or —>" \
   --open-issues "<missing-plus-unused-plus-typo-count>/<missing-plus-unused-plus-typo-count>" \
-  --report "reviews/bib-validate/<YYYY-MM-DD-HHMM>.md" \
+  --report "reviews/<paper-slug>/bib-validate/<YYYY-MM-DD-HHMM>.md" \
   --notes "<one-line: e.g. '2 missing keys, 5 unused; 1 likely fabricated'>" \
   [--trigger "pre-submission-report|review-cluster"]
 ```

@@ -2,7 +2,7 @@
 Command line tool to validate Office document XML files against XSD schemas and tracked changes.
 
 Usage:
-    python validate.py <path> [--original <original_file>] [--auto-repair] [--author NAME]
+    uv run python validate.py <path> [--original <original_file>] [--auto-repair] [--author NAME]
 
 The first argument can be either:
 - An unpacked directory containing the Office document XML files
@@ -84,7 +84,7 @@ def main():
             ]
             if original_file:
                 validators.append(
-                    RedliningValidator(unpacked_dir, original_file, verbose=args.verbose, author=args.author)  
+                    RedliningValidator(unpacked_dir, original_file, verbose=args.verbose, author=args.author)
                 )
         case ".pptx":
             validators = [

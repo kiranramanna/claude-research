@@ -10,7 +10,7 @@
 #   5. `latexmk -xelatex` → copy to <book>/exports/<slug>.pdf
 #
 # Usage: build-book-pdf.sh <slug>
-#   <slug> must match a directory under ~/Research-Vault/books/ containing a
+#   <slug> must match a directory under ~/vault/books/ containing a
 #   myst.yml with a `format: tex` export.
 #
 # Exit codes: 0 success, 1 usage/precondition, 2 build error.
@@ -23,17 +23,17 @@ if [[ -z "$SLUG" ]]; then
   exit 1
 fi
 
-BOOK_DIR="$HOME/Research-Vault/books/$SLUG"
+BOOK_DIR="$HOME/vault/books/$SLUG"
 if [[ ! -d "$BOOK_DIR" ]]; then
   echo "error: book directory not found: $BOOK_DIR" >&2
   exit 1
 fi
 if [[ ! -f "$BOOK_DIR/myst.yml" ]]; then
   echo "[0/5] myst.yml not found — bootstrapping from books/index.yaml"
-  python3 - "$SLUG" "$BOOK_DIR" <<'PY'
+  uv run python - "$SLUG" "$BOOK_DIR" <<'PY'
 import re, sys, pathlib
 slug, book_dir = sys.argv[1], pathlib.Path(sys.argv[2])
-idx = (pathlib.Path.home() / "Research-Vault" / "books" / "index.yaml").read_text()
+idx = (pathlib.Path.home() / "vault" / "books" / "index.yaml").read_text()
 # Find the slug's block; collect title + chapters
 title, bib, chapters = None, "references.bib", []
 in_block, in_chapters = False, False
@@ -104,13 +104,13 @@ echo "[3/5] patching main tex ($MAIN_TEX)"
 # Swap 8-bit font setup for fontspec (xelatex needs this for unicode glyphs
 # like ↗ ∈ ─ ├ that mystmd emits in callouts, code blocks, tree diagrams).
 # Also compose a custom title page from atlas metadata + myst.yml overrides.
-python3 - "$MAIN_TEX" "$BOOK_DIR" "$SLUG" <<'PY'
+uv run python - "$MAIN_TEX" "$BOOK_DIR" "$SLUG" <<'PY'
 import re, sys, pathlib
 
 main_tex   = pathlib.Path(sys.argv[1])
 book_dir   = pathlib.Path(sys.argv[2])
 slug       = sys.argv[3]
-vault_root = pathlib.Path.home() / "Research-Vault"
+vault_root = pathlib.Path.home() / "vault"
 
 # ---- read atlas topic for canonical publication metadata --------------------
 def read_book_index_atlas_topic(slug):
@@ -130,7 +130,9 @@ def read_book_index_atlas_topic(slug):
     return None
 
 def read_atlas_meta(atlas_topic):
-    """Return dict with paper_title, venue, status from the first outputs entry."""
+    """Return dict with paper_title, venue, status, institution from the atlas
+    topic (venue/status/paper_title from the first outputs entry; institution
+    is a top-level field used for the cover affiliation line)."""
     if not atlas_topic:
         return {}
     path = vault_root / "atlas" / f"{atlas_topic}.md"
@@ -150,8 +152,13 @@ def read_atlas_meta(atlas_topic):
                            first, re.M)
             if fm:
                 v = fm.group(1).strip()
-                v = re.sub(r"^\[\[(.+)\]\]$", r"\1", v)  # strip wiki brackets
+                # strip wiki brackets, taking the alias side of a pipe-form link
+                v = re.sub(r"^\[\[(?:.*\|)?(.+?)\]\]$", r"\1", v)
                 meta[field] = v
+    # institution is a top-level field (drop any trailing `# comment`).
+    im = re.search(r"^institution:\s*['\"]?([^'\"#\n]+?)['\"]?\s*(?:#.*)?$", txt, re.M)
+    if im:
+        meta["institution"] = im.group(1).strip()
     return meta
 
 def read_myst_overrides(book_dir):
@@ -168,6 +175,36 @@ def read_myst_overrides(book_dir):
         if fm:
             out[field] = fm.group(1).strip()
     return out
+
+def read_book_index_title(slug):
+    """Return the book's registry title from books/index.yaml, or None."""
+    idx = (vault_root / "books" / "index.yaml").read_text()
+    in_block = False
+    for line in idx.splitlines():
+        if line.startswith(f"{slug}:"):
+            in_block = True
+            continue
+        if in_block:
+            if line and not line.startswith((" ", "\t", "#")):
+                break
+            m = re.match(r'\s*title:\s*["\']?(.+?)["\']?\s*$', line)
+            if m:
+                return m.group(1).strip()
+    return None
+
+# "Last updated" date = most recent chapter-file edit, formatted exactly like
+# the web cover at books.example.com/<slug> ("5 Jun 2026"), so the PDF
+# frontispiece and the web cover never show different dates.
+import datetime as _dt
+# Chapter files only — exclude hidden dotfiles (e.g. .audit-report-*.md that
+# /audit-paper-book leaves behind); pathlib.glob matches them but the web
+# cover's registered-chapter set does not, so including them would desync the
+# two dates.
+_mtimes = [p.stat().st_mtime for p in book_dir.glob("*.md") if not p.name.startswith(".")]
+last_updated = None
+if _mtimes:
+    _d = _dt.date.fromtimestamp(max(_mtimes))
+    last_updated = f"{_d.day} {_d.strftime('%b %Y')}"
 
 atlas_topic = read_book_index_atlas_topic(slug)
 atlas_meta  = read_atlas_meta(atlas_topic)
@@ -215,6 +252,19 @@ font_block = (
     "\\renewcommand{\\Rightarrow}{\\ensuremath{\\origRightarrow}}\n"
     "\\let\\origLeftarrow\\Leftarrow\n"
     "\\renewcommand{\\Leftarrow}{\\ensuremath{\\origLeftarrow}}\n"
+    # Standard research math macros that mirror the source papers' preambles
+    # and the web book's MathJax macro set (atlas prose-assets.html). Use
+    # \providecommand so a book-specific myst.yml `math:` definition — which
+    # mystmd expands inline before this preamble runs — always wins; this is
+    # just the default net so every book's PDF resolves the common shorthand
+    # without per-book config. \ensuremath wraps each so they also survive in
+    # text mode (mystmd can emit them outside $...$, like the arrows above).
+    # \1 = the double-stroke indicator 𝟙 via dsfont's \mathds.
+    "\\usepackage{dsfont}\n"
+    "\\providecommand{\\Prob}{\\ensuremath{\\mathbb{P}}}\n"
+    "\\providecommand{\\E}{\\ensuremath{\\mathbb{E}}}\n"
+    "\\providecommand{\\Var}{\\ensuremath{\\operatorname{Var}}}\n"
+    "\\providecommand{\\1}{\\ensuremath{\\mathds{1}}}\n"
 )
 s = re.sub(
     r"\\usepackage\[T1\]\{fontenc\}\s*\n"
@@ -224,22 +274,36 @@ s = re.sub(
     s,
 )
 
-# Compose a custom title page block from atlas meta + myst overrides.
-# Folds the publication info onto page 1 (no separate page 2).
-pub_lines = []
-if meta.get("paper_title"):
-    pub_lines.append(
-        f"{{\\itshape Companion to:}} {meta['paper_title']}"
-    )
+# Compose a custom frontispiece title page from atlas meta + myst overrides.
+# Mirrors the web cover at books.example.com/<slug>: a "Reading Companion"
+# eyebrow, the book title, a "Companion to <paper>" line, author, the
+# venue/status/institution row, and publication IDs at the foot — all on
+# page 1 (the book-class default \maketitle would otherwise be bare).
+def _texesc(t):
+    # Escape the three characters that are almost always literal text in these
+    # metadata fields. Leave $ { } alone so any inline math/grouping survives.
+    return (t.replace("&", r"\&").replace("%", r"\%").replace("#", r"\#")
+            if isinstance(t, str) else t)
+
+# Prefer a display title with the "— A Reading Companion" suffix stripped so it
+# doesn't echo the "Reading Companion" eyebrow; fall back to \@title otherwise.
+_book_title = read_book_index_title(slug)
+if _book_title:
+    _disp = re.sub(r"\s*[—–-]\s*An?\s+.*\bCompanion\s*$", "", _book_title,
+                   flags=re.I).strip()
+    title_tex = "{\\Huge\\bfseries " + _texesc(_disp or _book_title) + " \\par}"
+else:
+    title_tex = "{\\Huge\\bfseries \\@title \\par}"
+
+companion = _texesc(meta.get("paper_title"))
+
 venue_bits = []
-if meta.get("venue"):
-    venue_bits.append(meta["venue"])
-if meta.get("status"):
-    venue_bits.append(meta["status"])
+for k in ("venue", "status", "institution"):
+    if meta.get(k):
+        venue_bits.append(_texesc(meta[k]))
 if meta.get("conference_date"):
-    venue_bits.append(meta["conference_date"])
-if venue_bits:
-    pub_lines.append(" · ".join(venue_bits))
+    venue_bits.append(_texesc(meta["conference_date"]))
+
 id_bits = []
 if meta.get("doi"):
     id_bits.append(f"DOI: \\href{{https://doi.org/{meta['doi']}}}"
@@ -249,37 +313,61 @@ if meta.get("arxiv"):
                    f"{{{meta['arxiv']}}}")
 if meta.get("repo"):
     id_bits.append(f"Code: \\href{{{meta['repo']}}}{{{meta['repo']}}}")
-if id_bits:
-    pub_lines.append(" \\\\\n".join(id_bits))
 
-if pub_lines:
-    # Replace \maketitle entirely (book class default appends \newpage which
-    # would push our block onto page 2). Compose a custom titlepage that
-    # includes title/subtitle/author/date AND the publication info on one page.
-    pub_block = (
-        "\n% --- custom title page (replaces book-class \\maketitle) ---\n"
-        "\\makeatletter\n"
-        "\\renewcommand{\\maketitle}{%\n"
-        "  \\begin{titlepage}%\n"
-        "    \\null\\vfil%\n"
-        "    \\begin{center}%\n"
-        "      {\\Huge\\bfseries \\@title \\par}%\n"
-        "      \\vskip 2em%\n"
-        "      {\\large \\@author \\par}%\n"
-        "      \\vskip 1em%\n"
-        "      {\\small \\@date \\par}%\n"
-        "      \\vskip 3em%\n"
-        "      \\rule{0.4\\textwidth}{0.4pt}\\\\[1.5em]%\n"
-        "      \\small\n"
-        + "\\\\[0.6em]\n".join(pub_lines) + "\n"
-        "    \\end{center}\\par%\n"
-        "    \\@thanks\\vfil\\null%\n"
-        "  \\end{titlepage}%\n"
-        "}\n"
-        "\\makeatother\n"
-        "% --- end custom title page ---\n"
-    )
-    s = s.replace("\\begin{document}", pub_block + "\n\\begin{document}", 1)
+# Build the titlepage body line by line. Always applied — even with no
+# publication metadata the eyebrow + title + author + date beats the default.
+tp = [
+    "    \\centering",
+    "    \\vspace*{\\fill}",
+    "    {\\large\\scshape Reading Companion\\par}",
+    "    \\vskip 0.7em",
+    "    \\rule{3cm}{0.4pt}\\par",
+    "    \\vskip 2.2em",
+    "    " + title_tex,
+]
+if companion:
+    tp += [
+        "    \\vskip 1.6em",
+        "    {\\large\\itshape Companion to\\par}",
+        "    \\vskip 0.35em",
+        f"    {{\\large {companion}\\par}}",
+    ]
+tp += [
+    "    \\vskip 1.6em",
+    "    {\\large \\@author \\par}",
+]
+if venue_bits:
+    tp += [
+        "    \\vskip 0.8em",
+        "    {\\small " + " $\\cdot$ ".join(venue_bits) + "\\par}",
+    ]
+tp += [
+    "    \\vskip 2.2em",
+    "    \\rule{3cm}{0.4pt}\\par",
+    "    \\vspace*{\\fill}",
+]
+if id_bits:
+    tp += [
+        "    {\\footnotesize " + " \\\\\n".join(id_bits) + "\\par}",
+        "    \\vskip 1em",
+    ]
+if last_updated:
+    tp += [f"    {{\\footnotesize Last updated {last_updated}\\par}}"]
+else:
+    tp += ["    {\\footnotesize \\@date \\par}"]
+
+pub_block = (
+    "\n% --- custom title page (replaces book-class \\maketitle) ---\n"
+    "\\makeatletter\n"
+    "\\renewcommand{\\maketitle}{%\n"
+    "  \\begin{titlepage}%\n"
+    + "\n".join(tp) + "\n"
+    "  \\end{titlepage}%\n"
+    "}\n"
+    "\\makeatother\n"
+    "% --- end custom title page ---\n"
+)
+s = s.replace("\\begin{document}", pub_block + "\n\\begin{document}", 1)
 
 main_tex.write_text(s)
 PY
@@ -288,7 +376,7 @@ echo "[4/5] patching per-chapter tex (section→chapter)"
 # Per-chapter files are <PREFIX>-<chapter>.tex. Bump heading depth one level so
 # the book class produces 1.x / 2.x / ... chapter numbering instead of 0.x.
 # Use Python with sentinels to avoid sed's order-dependent reapplication.
-python3 - "$TEX_DIR" "$PREFIX" <<'PY'
+uv run python - "$TEX_DIR" "$PREFIX" <<'PY'
 import re, sys, pathlib
 tex_dir = pathlib.Path(sys.argv[1])
 prefix  = sys.argv[2]
@@ -308,10 +396,10 @@ for chap in tex_dir.glob(pattern):
         s = re.sub(src, f"@@H{i}@@{{", s)
     for i, (_, dst) in enumerate(REPLACEMENTS):
         s = s.replace(f"@@H{i}@@{{", dst)
-    # mystmd emits unicode arrows as bare \rightarrow etc. — TeX glues them
-    # to following letters (\rightarrowPS → undefined cs). Insert {} to
-    # terminate the control sequence when followed by a letter.
-    s = re.sub(r"(\\(?:right|left|up|down|Right|Left|Up|Down)arrow)([A-Za-z])",
+    # mystmd emits unicode arrows/ellipses as bare \rightarrow, \dots etc. — TeX
+    # glues them to a following letter (\rightarrowPS / \dotsmoves → undefined
+    # cs). Insert {} to terminate the control sequence when followed by a letter.
+    s = re.sub(r"(\\(?:right|left|up|down|Right|Left|Up|Down)arrow|\\dots|\\ldots)([A-Za-z])",
                r"\1{}\2", s)
     chap.write_text(s)
 PY

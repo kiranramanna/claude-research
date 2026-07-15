@@ -145,3 +145,17 @@ Run `/latex` to compile. Verify:
 | `/bib-validate` | After scaffolding to verify all citation keys resolve |
 | `/proofread` | After scaffolding for grammar and consistency check |
 | `/latex-template` | After scaffolding to verify preamble aligns with the working paper template |
+
+## Citation Contract
+
+<!-- paperpile-citation-contract -->
+1. Paperpile is the only source of truth for committed citation keys and BibTeX metadata.
+2. Before writing `\cite{key}`, verify with `paperpile get-item key` and `paperpile export-bib key`.
+3. Resolve unknowns in order: DOI lookup → Paperpile substring search → `refpile` semantic search → Paperpile verify.
+4. A DOI miss is **not** non-membership; continue with title/author search and refpile.
+5. If unresolved, write `\CiteTodo{slug}{title/author/year/DOI hint}` — never a guessed key.
+6. Drafting sub-agents must not write/edit the active `.bib`; only the orchestrator regenerates it from Paperpile exports.
+7. Stage genuine new refs under `.paperpile-import/` for manual Paperpile import; don't cite until Paperpile mints the key.
+8. Run `scripts/bib/citation_lint.py` before commit; zero placeholders, zero non-Paperpile keys, zero hand-authored metadata.
+
+See `rules/paperpile-citations.md` for the full workflow.

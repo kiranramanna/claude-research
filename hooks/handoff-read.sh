@@ -1,23 +1,30 @@
 #!/bin/bash
 # handoff-read.sh
-# SessionStart hook — if handoff.md exists in cwd, read it into additionalContext
-# and delete it (one-shot scratch).
-#
-# Companion to the /handoff skill. Zero cost when no handoff.md present.
+# SessionStart hook — surface the shared project handoff when it targets Claude.
+# The shared handoff is persistent; the receiving client maintains its lifecycle.
 
-HANDOFF="$(pwd)/handoff.md"
+HANDOFF="$(pwd)/.context/ai-handoff.md"
 
-[ -f "$HANDOFF" ] || exit 0
+if [ ! -f "$HANDOFF" ]; then
+    exit 0
+fi
+
+TO=$(awk -F ': *' '$1 == "to" {print $2; exit}' "$HANDOFF")
+STATUS=$(awk -F ': *' '$1 == "status" {print $2; exit}' "$HANDOFF")
+
+case "$TO" in
+    claude|either) ;;
+    *) exit 0 ;;
+esac
+
+[ "$STATUS" = "complete" ] && exit 0
 
 CONTENT=$(cat "$HANDOFF")
-[ -z "$CONTENT" ] && { rm -f "$HANDOFF"; exit 0; }
+[ -z "$CONTENT" ] && exit 0
 
-# Delete immediately — one-shot semantics even if JSON emission fails
-rm -f "$HANDOFF"
+WRAPPED="# Shared project handoff
 
-WRAPPED="# Handoff from previous session
-
-(Auto-injected from handoff.md in cwd, then deleted.)
+(Auto-injected from .context/ai-handoff.md. This file persists; acknowledge it and maintain its status/log.)
 
 $CONTENT"
 

@@ -6,7 +6,7 @@ The Notion-backed CLI tools that lived here previously (`task`, `tasks`,
 `done`, `inbox`, `query`, `week`, `conf`, plus `daily_digest.py`,
 `extract_meeting_actions.py`, `notion_helpers.py`, `config.py`,
 `generate-codex-agents-md.py`) were retired in 2026-04. The Research Vault
-(`~/Research-Vault`) and the `taskflow` MCP server replaced them.
+(`~/vault`) and the `taskflow` MCP server replaced them.
 
 ## Active scripts
 
@@ -23,7 +23,6 @@ The Notion-backed CLI tools that lived here previously (`task`, `tasks`,
 | `skill-log-miner.py` | Mine skill outcome logs for failure patterns |
 | `sync-resources.sh` | Pull latest from cloned resource repos |
 | `sync-template.sh` | Sync templates between locations |
-| `sync-to-codex.sh` | Sync infrastructure to the Codex CLI |
 | `venue-metrics` | Pull venue-level metrics |
 
 ## Shared libraries
@@ -38,10 +37,10 @@ The Notion-backed CLI tools that lived here previously (`task`, `tasks`,
 |---------|-------------|
 | `task`, `tasks`, `done`, `inbox` | `taskflow-cli` (Bash) or `taskflow` MCP tools |
 | `query` | `refpile search-library` (semantic) or `paperpile search-library` (exact) |
-| `week` | `/minutes-weekly` skill or vault-based weekly review |
+| `week` | `/meetings-weekly` skill or vault-based weekly review |
 | `conf` | `conf-timeline list` (see [`docs/guides/conf-deadlines.md`](../docs/guides/conf-deadlines.md)) |
 | `daily_digest.py` | `/task-management` skill (vault-aware) |
-| `extract_meeting_actions.py` | `/minutes-recap` skill |
+| `extract_meeting_actions.py` | `/meetings-recap` skill |
 
 ## Conventions
 

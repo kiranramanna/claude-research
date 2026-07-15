@@ -1,6 +1,6 @@
 ---
 name: bib-parse
-description: "Extract citations from a PDF and generate a validated .bib file. Reads the PDF, identifies all referenced works, constructs BibTeX entries with metadata verification, then runs /bib-validate."
+description: "Use when you need to extract citations from a PDF and generate a validated .bib file. Reads the PDF, identifies all referenced works, constructs BibTeX entries with metadata verification, then runs /bib-validate."
 allowed-tools: Read, Glob, Grep, Write, Bash(mkdir*), Bash(ls*), Bash(uv*), WebFetch, WebSearch, Skill(split-pdf), Skill(bib-validate), Bash(paperpile*)
 argument-hint: <path-to-pdf>
 ---
@@ -33,9 +33,9 @@ A single PDF file path. The PDF should contain a bibliography, reference list, o
 A `.bib` file, located by context:
 
 - **PDF inside a research project** (e.g. `articles/`, `paper-*/`, project root) — write to the same directory as the input PDF, named `references.bib` (per project convention). If `references.bib` already exists, ask before overwriting — offer to merge or use a different name (e.g., `extracted-refs.bib`).
-- **Standalone PDF** (ad-hoc extraction with no project home — e.g. an upload in `~/.claude/uploads/`) — write to `~/Research-Vault/parsed-bibs/<slug>.bib`, where `<slug>` describes the source (e.g. `kasberger-algorithmic-cooperation-geb-2026.bib`). This is the standing location for one-off parses (established 2026-06-14). Create the folder if absent.
+- **Standalone PDF** (ad-hoc extraction with no project home — e.g. a client-managed upload) — write to `~/vault/parsed-bibs/<slug>.bib`, where `<slug>` describes the source (e.g. `kasberger-algorithmic-cooperation-geb-2026.bib`). This is the standing location for one-off parses (established 2026-06-14). Create the folder if absent.
 
-Any staged Paperpile-import file (`paperpile-stage-YYYY-MM-DD-HHMM.bib`, Phase 4.1) is written next to the output `.bib`.
+Any staged Paperpile-import entry (Phase 4.1) is written into a `.bib` under `.paperpile-import/` next to the output `.bib`.
 
 ---
 
@@ -98,7 +98,7 @@ For each reference found, extract:
 
 For each extracted reference, verify and enrich using available tools:
 
-1. **Search by title** via `WebSearch` to confirm the reference exists and pull missing metadata (DOI, volume, pages).
+1. **Search by title** via `web search` to confirm the reference exists and pull missing metadata (DOI, volume, pages).
 2. **Use the `scholarly` CLI** for multi-source enrichment:
    - `scholarly scholarly-search "<title>" --json` — search by title across OpenAlex + S2 + Scopus + WoS
    - `scholarly scholarly-paper-detail <paper_id> --json` — get full metadata including pre-formatted BibTeX (`citationStyles`), TLDR summary, and open access PDF link. When BibTeX is available, use it as the primary template instead of manually constructing entries — reduces formatting errors.
@@ -207,8 +207,8 @@ Follow the filing sequence from [`shared/reference-resolution.md`](../shared/ref
    | 1 | Smith2020-xy | Title... | Smith, J. | 2020 | NEW — staging for import |
    | 2 | Doe2019-ab | Title... | Doe, J. | 2019 | ALREADY IN PAPERPILE (skipped) |
 
-2. **Stage as BibTeX** via `paperpile write-bib` — output: `paperpile-stage-YYYY-MM-DD-HHMM.bib` in the project root.
-3. **Remind user** — "Import the staged `.bib` file into Paperpile to complete the sync."
+2. **Stage under `.paperpile-import/`** — write each new entry's BibTeX into a `.bib` under `.paperpile-import/` (Paperpile CLI is read-only; `write-bib --citekeys` only exports entries already in the library). Mark any draft cite `\CiteTodo{...}` until imported.
+3. **Remind user** — "Import the staged `.bib` under `.paperpile-import/` into Paperpile to complete the sync."
 
 **Graceful degradation:** if the `paperpile` CLI is unavailable, skip this sub-step. The `.bib` file from Phase 3.3 is still the primary output.
 
@@ -230,12 +230,12 @@ Before any auto-commit, emit an outputs manifest and run the shared verifier per
 2. Run:
 
    ```bash
-   python3 "$HOME/.claude/skills/_shared/verify_outputs.py" \
+   uv run python "<skills-root>/_shared/verify_outputs.py" \
        --manifest "$MANIFEST" \
        --project-root "$PROJECT_ROOT"
    ```
 
-3. If the verifier exits non-zero, **do not commit**. Surface the missing-files list and stop. The verifier logs an `error` entry to `~/.claude/ecc/skill-outcomes.jsonl`.
+3. If the verifier exits non-zero, **do not commit**. Surface the missing-files list and stop. The verifier logs an `error` entry to `~/.local/state/ai-workflows/skill-outcomes.jsonl`.
 
 Closes the "hallucinated outputs" failure class (commit `b2cff75`, 2026-04-18).
 
@@ -277,3 +277,17 @@ After completion, provide a summary:
 - [`/split-pdf`](../split-pdf/SKILL.md) — reads the input PDF (called in Phase 1.1)
 - [`/literature`](../literature/SKILL.md) — for finding additional references beyond what's in the PDF
 - [`shared/reference-resolution.md`](../shared/reference-resolution.md) — canonical lookup + filing sequence used by Phase 2.3 and Phase 4.1
+
+## Citation Contract
+
+<!-- paperpile-citation-contract -->
+1. Paperpile is the only source of truth for committed citation keys and BibTeX metadata.
+2. Before writing `\cite{key}`, verify with `paperpile get-item key` and `paperpile export-bib key`.
+3. Resolve unknowns in order: DOI lookup → Paperpile substring search → `refpile` semantic search → Paperpile verify.
+4. A DOI miss is **not** non-membership; continue with title/author search and refpile.
+5. If unresolved, write `\CiteTodo{slug}{title/author/year/DOI hint}` — never a guessed key.
+6. Drafting sub-agents must not write/edit the active `.bib`; only the orchestrator regenerates it from Paperpile exports.
+7. Stage genuine new refs under `.paperpile-import/` for manual Paperpile import; don't cite until Paperpile mints the key.
+8. Run `scripts/bib/citation_lint.py` before commit; zero placeholders, zero non-Paperpile keys, zero hand-authored metadata.
+
+See `rules/paperpile-citations.md` for the full workflow.

@@ -16,9 +16,9 @@ The core insight: a single-perspective analysis inherits the biases of that pers
 Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-scoped to `paper-*/` and `paper/`)):
 
 - **Source slug:** `multi-perspective`
-- **Write reports to:** `reviews/multi-perspective/YYYY-MM-DD.md` inside the project. Path is relative to the research project root, not the Task-Management repo.
+- **Write reports to:** `reviews/<scope>/multi-perspective/YYYY-MM-DD-HHMM.md` inside the project, where `<scope>` is the paper slug (e.g., `paper-jtp`, `paper-philtech`) for paper-level reviews or `_project` for project-level reviews. Path is relative to the research project root, not the Task-Management repo.
 - **Never** at project root (`./CRITIC-REPORT.md`-style filenames are forbidden — pre-rule layout).
-- **Idempotency:** if today's file exists, append a same-day descriptor (`{date}-revision.md`, `{date}-r2.md`, `{date}-pre-submission.md`) — never overwrite.
+- **Idempotency:** the timestamp includes minutes (`YYYY-MM-DD-HHMM`), so same-day runs are naturally separated. If multiple reports are generated in the same minute, append a descriptor (`{timestamp}-r2.md`, `{timestamp}-revision.md`) — never overwrite.
 - **Index update:** if `reviews/INDEX.md` exists, write a one-line entry under "Latest per source" pointing at the new file. Otherwise `/review-recap` will rebuild the index next time it runs.
 - **Infrastructure repos** (Task-Management, atlas-workspace, etc.): this section does not apply — the path-scoped rule won't load there.
 
@@ -73,7 +73,7 @@ Three sub-steps — parallel investigation, then user check-in, then anonymised 
 
 #### 3.1 Parallel investigation
 
-Spawn one sub-agent per perspective using the Task tool. Each agent receives:
+Spawn one sub-agent per perspective using the fresh-context sub-agent mechanism. Each agent receives:
 
 ```
 You are a [LABEL] investigating this research question:
@@ -114,7 +114,7 @@ After collecting all perspective outputs, present them to the user as a structur
 - The main disagreements visible so far
 - Any assumptions the perspectives made about the research context
 
-**Then ask (via AskUserQuestion):**
+**Then ask (via the available structured-question mechanism):**
 
 > "Here's where the perspectives stand so far. Before they peer-review each other, I want to check in:
 >
@@ -135,7 +135,7 @@ Before synthesising, run a peer-review round where each perspective critiques al
 
 **Setup:** Anonymise each perspective's output by replacing the label with a neutral identifier (Perspective A, B, C, ...). Strip any self-identifying language (e.g., "as an econometrician, I...").
 
-**Spawn one evaluator agent per perspective** using the Task tool. Each receives:
+**Spawn one evaluator agent per perspective** using the fresh-context sub-agent mechanism. Each receives:
 
 ```
 You are a [LABEL] ([DISCIPLINE]).
@@ -217,7 +217,7 @@ Based on the synthesis:
 
 ### Phase 5: Output
 
-Create `correspondence/internal-reviews/` if it does not exist (`mkdir -p`). Write the report to `correspondence/internal-reviews/PERSPECTIVES-REPORT.md` (or print to console for quick use).
+Create `reviews/<scope>/multi-perspective/` if it does not exist (`mkdir -p`), where `<scope>` is the paper slug or `_project` as applicable. Write the report to `reviews/<scope>/multi-perspective/YYYY-MM-DD-HHMM.md` (or print to console for quick use).
 
 ## Output Format
 
@@ -277,29 +277,9 @@ Create `correspondence/internal-reviews/` if it does not exist (`mkdir -p`). Wri
 
 ## Council Mode Enhancement
 
-In standard mode, Phase 3 spawns Claude sub-agents with different personas — but they all share the same underlying model. Council mode upgrades this to genuine model diversity: different LLM providers (Claude, GPT, Gemini) bring genuinely different reasoning patterns, training biases, and knowledge bases.
+Standard mode spawns Claude sub-agents with different personas — all sharing one underlying model. Council mode upgrades this to genuine model diversity: each perspective is assigned to a different LLM provider via `council-cli` (Phase 3), models blind-review each other's perspectives (Phase 3.3), and a chairman synthesises weighted by peer scores (Phase 4). **Trigger:** "council multi-perspective" / "thorough multi-perspective". Full orchestration + invocation: [`../shared/council-protocol.md`](../shared/council-protocol.md).
 
-**Trigger:** "Council multi-perspective" or "thorough multi-perspective"
-
-**What changes in council mode:**
-- Phase 3 (Parallel Investigation): Each perspective is assigned to a different LLM provider via `council-cli`, not Claude sub-agents
-- Phase 3.3 (Cross-Evaluation): Each model evaluates the others' perspectives without knowing which model produced which — genuine blind review
-- Phase 4 (Synthesis): Chairman model reads all perspectives and cross-evaluations, weighted by peer scores
-
-**Invocation (CLI backend):**
-```bash
-cd packages/council-cli
-uv run python -m council_cli \
-    --prompt-file /tmp/perspective-prompt.txt \
-    --context-file /tmp/research-context.txt \
-    --output-md /tmp/perspectives-council.md \
-    --chairman claude \
-    --timeout 180
-```
-
-See `skills/shared/council-protocol.md` for the full orchestration protocol.
-
-**Value:** High — this skill is the natural fit for council mode. The whole point of multi-perspective analysis is cognitive diversity, and using genuinely different models instead of persona-differentiated instances of the same model is a strict upgrade.
+**Value:** High — the natural fit for council mode. Multi-perspective analysis is about cognitive diversity, so genuinely different models beat persona-differentiated instances of one model: a strict upgrade.
 
 ## Cross-References
 

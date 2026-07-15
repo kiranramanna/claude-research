@@ -1,8 +1,8 @@
 # Agents
 
-> 15 specialised review agents with separate context and persistent memory.
+> 15 neutral agent definitions with client-specific adapters.
 
-Agents are autonomous sub-processes that run in a separate context via Claude Code's Task tool.
+Compatible agents render to Claude Markdown and Codex TOML.
 Unlike skills, agents solve the "grading your own homework" problem — they review work
 without access to the author's reasoning.
 
@@ -10,25 +10,25 @@ without access to the author's reasoning.
 
 | Agent | Description |
 |-------|-------------|
-| `artifact-coherence-auditor` | Audits coherence between paper prose and replication outputs — catches hallucinated results, missing scripts, mismatched numbers, and unverifiable claims |
+| `artifact-coherence-auditor` | Audits coherence between paper prose and replication outputs — catches\ \ hallucinated results, missing scripts, mismatched numbers, and unverifiable claims.\ \ Read-only with respect to project files; writes its own report at `reviews/<scope>/artifact-coherence-auditor/<YYYY-MM-DD-HHMM>.md`.\ \ Complements code-paper-auditor (which maps numbers to code) by checking whether\ \ the replication package *actually produces* what the paper claims |
 | `blindspot` | Peripheral vision audit for empirical output |
-| `claim-verify` | Verify that cited claims in a paper accurately represent what the source papers actually say |
-| `code-paper-auditor` | Use this agent when you need to verify code-paper consistency — mapping every quantitative claim in a paper to its source code and output files |
-| `code-review` | Multi-persona orchestrator for adversarial review of R, Python, Julia, or Stata research scripts |
-| `codex-research` | Code review and research agent that delegates to OpenAI Codex CLI in headless mode |
+| `claim-verify` | Verify that cited claims in a paper accurately represent what the source\ \ papers actually say |
+| `code-paper-auditor` | Use this agent when you need to verify code-paper consistency — mapping\ \ every quantitative claim in a paper to its source code and output files |
+| `code-review` | Multi-persona orchestrator for adversarial review of R, Python, Julia,\ \ or Stata research scripts |
+| `codex-research` | Code review and research agent that delegates to OpenAI Codex CLI in\ \ headless mode |
 | `domain-reviewer` | Research-focused substantive correctness agent |
 | `fatal-error-check` | Fast pre-review check for fatal errors in LaTeX papers |
 | `fixer` | Generic fix implementer for any critic report |
 | `gemini-research` | Web research agent that delegates to Gemini CLI in headless mode |
 | `paper-critic` | Adversarial auditor for LaTeX papers |
-| `peer-reviewer` | Use this agent when you need to review someone else's paper — as a peer reviewer, discussant, or for reading group preparation |
-| `proposal-reviewer` | Use this agent when you need to review a research proposal, extended abstract, conference submission outline, or pre-paper plan — either his own or someone else's |
-| `referee2-reviewer` | Use this agent when the user wants a rigorous, adversarial academic review of their work — including papers, manuscripts, research designs, code, or arguments |
-| `reproducibility-auditor` | Reviews research workflows for reproducibility gaps — hidden dependencies, absolute paths, undocumented prerequisites, environment assumptions, and output traceability |
+| `peer-reviewer` | Use this agent when you need to review someone else's paper — as a\ \ peer reviewer, discussant, or for reading group preparation |
+| `proposal-reviewer` | Use this agent when you need to review a research proposal, extended\ \ abstract, conference submission outline, or pre-paper plan — either his own or\ \ someone else's |
+| `referee2-reviewer` | Rigorous adversarial reviewer for papers, manuscripts, research designs, code, and arguments |
+| `reproducibility-auditor` | Reviews research workflows for reproducibility gaps — hidden dependencies,\ \ absolute paths, undocumented prerequisites, environment assumptions, and output\ \ traceability |
 
 ## How Agents Work
 
-1. The main session spawns an agent via the Task tool
+1. The main session selects an agent supported by its client
 2. The agent runs in a separate context with its own instructions
 3. The agent produces a report (never modifies source files)
 4. The report is returned to the main session for review
@@ -41,7 +41,7 @@ but only when explicitly invoked.
 
 ## Creating a New Agent
 
-Create a `.md` file in `.claude/agents/` with YAML frontmatter:
+Create a `.md` file in `agents/` with YAML frontmatter:
 
 ```yaml
 ---
@@ -50,4 +50,4 @@ description: "What this agent does"
 ---
 ```
 
-Agents are available globally via symlink: `~/.claude/agents/` points to this repo's `.claude/agents/`.
+Declare clients and required capabilities before rendering. `codex-research` remains Claude-only because it delegates externally to Codex CLI.

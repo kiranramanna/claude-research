@@ -1,7 +1,7 @@
 ---
 name: beamer-deck
 description: "Use when you need to create an academic Beamer presentation with original theme and multi-agent review."
-allowed-tools: Bash(latexmk*), Bash(xelatex*), Bash(pdflatex*), Bash(biber*), Bash(bibtex*), Bash(mkdir*), Bash(ls*), Bash(R*), Bash(Rscript*), Bash(python*), Read, Write, Edit, Task
+allowed-tools: Bash(latexmk*), Bash(xelatex*), Bash(pdflatex*), Bash(biber*), Bash(bibtex*), Bash(mkdir*), Bash(ls*), Bash(R*), Bash(Rscript*), Bash(uv:*), Read, Write, Edit, Task
 argument-hint: [topic, content-path, or project-name]
 ---
 
@@ -99,7 +99,7 @@ Present the outline to the user for approval before building.
 ### Phase 3: Build Deck (Direct)
 
 1. **Generate figures first** — run R/Python scripts, save to `figures/`
-2. **Write `.tex` file** using the unified template: `\documentclass[aspectratio=169,11pt]{beamer}` + `\usepackage[institution]{user-beamer}` (or other institution option). Use `\fbinstitute` and `\fbemail` for metadata. Custom commands: `\contribcard`, `\phasecircle`, `\accentbox`, `\highlightbox`, `standoutframe` environment.
+2. **Write `.tex` file** using the unified template: `\documentclass[aspectratio=169,11pt]{beamer}` + `\usepackage[university]{user-beamer}` (or other institution option). Use `\fbinstitute` and `\fbemail` for metadata. Custom commands: `\contribcard`, `\phasecircle`, `\accentbox`, `\highlightbox`, `standoutframe` environment.
 3. **Use 16:9 aspect ratio** (already in the documentclass above)
 4. **Create `.latexmkrc`** if not present (`$out_dir = 'out'` + `END {}` block to copy PDF back)
 5. **Compile using `/latex`** — this handles missing packages, font conflicts, citation key mismatches, and stale cache automatically

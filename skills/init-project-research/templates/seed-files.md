@@ -157,7 +157,7 @@ out/
 paper-*/backup/
 
 # Archived review reports (per `review-artefact-routing` rule)
-reviews/*/archived/
+reviews/**/archived/
 ```
 
 ## reviews/INDEX.md
