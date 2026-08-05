@@ -3,6 +3,7 @@ name: multi-perspective
 description: "Use when you need to explore a research question from multiple independent perspectives."
 allowed-tools: Read, Write, Edit, Glob, Grep, Task, AskUserQuestion
 argument-hint: "[research question, hypothesis, or design choice]"
+skill-dependencies: [devils-advocate, proofread]
 ---
 
 # Multi-Perspective Exploration
@@ -19,7 +20,7 @@ Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-sc
 - **Write reports to:** `reviews/<scope>/multi-perspective/YYYY-MM-DD-HHMM.md` inside the project, where `<scope>` is the paper slug (e.g., `paper-jtp`, `paper-philtech`) for paper-level reviews or `_project` for project-level reviews. Path is relative to the research project root, not the Task-Management repo.
 - **Never** at project root (`./CRITIC-REPORT.md`-style filenames are forbidden — pre-rule layout).
 - **Idempotency:** the timestamp includes minutes (`YYYY-MM-DD-HHMM`), so same-day runs are naturally separated. If multiple reports are generated in the same minute, append a descriptor (`{timestamp}-r2.md`, `{timestamp}-revision.md`) — never overwrite.
-- **Index update:** if `reviews/INDEX.md` exists, write a one-line entry under "Latest per source" pointing at the new file. Otherwise `/review-recap` will rebuild the index next time it runs.
+- **Index update:** if `reviews/INDEX.md` exists, write a one-line entry under "Latest per source" pointing at the new file. Otherwise `review-recap` will rebuild the index next time it runs.
 - **Infrastructure repos** (Task-Management, atlas-workspace, etc.): this section does not apply — the path-scoped rule won't load there.
 
 
@@ -33,10 +34,10 @@ Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-sc
 
 ## When NOT to Use
 
-- **Quick feedback** — use `/devils-advocate` (single-perspective adversarial)
-- **Literature search** — use `/literature` (discovery, not deliberation)
-- **Generating new questions** — use `/scout generate` (this skill evaluates, not generates)
-- **Paper proofreading** — use `/proofread` or `paper-critic` agent
+- **Quick feedback** — use `devils-advocate` (single-perspective adversarial)
+- **Literature search** — use an installed scholarly-search workflow (discovery, not deliberation)
+- **Generating new questions** — use `a dedicated discovery workflow` (this skill evaluates, not generates)
+- **Paper proofreading** — use `proofread` or `paper-critic` agent
 
 ## Workflow
 
@@ -277,7 +278,12 @@ Create `reviews/<scope>/multi-perspective/` if it does not exist (`mkdir -p`), w
 
 ## Council Mode Enhancement
 
-Standard mode spawns Claude sub-agents with different personas — all sharing one underlying model. Council mode upgrades this to genuine model diversity: each perspective is assigned to a different LLM provider via `council-cli` (Phase 3), models blind-review each other's perspectives (Phase 3.3), and a chairman synthesises weighted by peer scores (Phase 4). **Trigger:** "council multi-perspective" / "thorough multi-perspective". Full orchestration + invocation: [`../shared/council-protocol.md`](../shared/council-protocol.md).
+Standard mode spawns fresh-context workers with different personas. Council
+mode upgrades this to genuine model diversity through an explicitly configured
+external council backend: models blind-review each other's perspectives and a
+chairman synthesises weighted by peer scores. **Trigger:** "council
+multi-perspective" / "thorough multi-perspective". Full orchestration and
+invocation: [`../shared/council-protocol.md`](../shared/council-protocol.md).
 
 **Value:** High — the natural fit for council mode. Multi-perspective analysis is about cognitive diversity, so genuinely different models beat persona-differentiated instances of one model: a strict upgrade.
 
@@ -285,8 +291,8 @@ Standard mode spawns Claude sub-agents with different personas — all sharing o
 
 | Skill | When to use instead/alongside |
 |-------|-------------------------------|
-| `/devils-advocate` | Quick single-perspective adversarial feedback |
-| `/literature` | Find the papers that perspectives reference |
-| `/interview-me` | Develop the research idea through structured conversation |
+| `devils-advocate` | Quick single-perspective adversarial feedback |
+| Installed scholarly-search workflow | Find the papers that perspectives reference |
+| `interview-me` | Develop the research idea through structured conversation |
 | Referee 2 agent | Formal paper audit with code verification |
 | `references/computational-many-analysts.md` | When combining qualitative perspectives with quantitative many-analysts |

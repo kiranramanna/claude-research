@@ -2,7 +2,8 @@
 name: proofread
 description: "Use when you need academic proofreading of a LaTeX paper (11 check categories)."
 allowed-tools: Read, Glob, Grep
-argument-hint: [project-path or tex-file]
+argument-hint: "[project-path or tex-file]"
+skill-dependencies: [devils-advocate]
 ---
 
 # Academic Proofreading
@@ -17,7 +18,7 @@ Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-sc
 - **Write reports to:** `reviews/<scope>/proofread/YYYY-MM-DD.md` inside the project, where `<scope>` is the paper slug (e.g., `paper-jtp`). Path is relative to the research project root, not the Task-Management repo.
 - **Never** at project root (`./CRITIC-REPORT.md`-style filenames are forbidden — pre-rule layout).
 - **Idempotency:** if today's file exists, append a same-day descriptor (`{date}-revision.md`, `{date}-r2.md`, `{date}-pre-submission.md`) — never overwrite.
-- **Index update:** if `reviews/INDEX.md` exists, write a one-line entry under "Latest per source" pointing at the new file. Otherwise `/review-recap` will rebuild the index next time it runs.
+- **Index update:** if `reviews/INDEX.md` exists, write a one-line entry under "Latest per source" pointing at the new file. Otherwise `review-recap` will rebuild the index next time it runs.
 - **Infrastructure repos** (Task-Management, atlas-workspace, etc.): this section does not apply — the path-scoped rule won't load there.
 
 
@@ -31,15 +32,15 @@ Per `rules/review-artefact-routing.md` (auto-loads in research projects (path-sc
 ## When NOT to Use
 
 - **Formal audits** — use the Referee 2 agent for systematic verification
-- **Argument quality** — use `/devils-advocate` for logical scrutiny
-- **Citation completeness** — use `/bib-validate` for bibliography cross-referencing (though this skill flags obvious citation format issues)
+- **Argument quality** — use `devils-advocate` for logical scrutiny
+- **Citation completeness** — use an installed bibliography validator or direct cite-key cross-referencing (this skill flags only obvious citation-format issues)
 
 ## Workflow
 
 1. **Locate files**: Find all `.tex` files in the project (and `.log` files for LaTeX diagnostics)
 2. **Read the document**: Read all `.tex` source files in order
 3. **Run 11 check categories** (below)
-4. **Produce report**: Write `reviews/<scope>/proofread/<YYYY-MM-DD-HHMM>.md` under the project directory (where `<scope>` is the paper slug, e.g., `paper-jtp`; create the directory if it does not exist: `mkdir -p reviews/<scope>/proofread/`). Do NOT overwrite previous reports — each review is timestamped to the minute. Canonical convention: `~/Task-Management/docs/reference/review-state-schema.md`.
+4. **Produce report**: Write `reviews/<scope>/proofread/<YYYY-MM-DD-HHMM>.md` under the project directory (where `<scope>` is the paper slug, e.g., `paper-jtp`; create the directory if it does not exist: `mkdir -p reviews/<scope>/proofread/`). Do NOT overwrite previous reports — each review is timestamped to the minute. Canonical convention: the installed shared resource `shared/review-state-schema.md`.
 
 ## Check Categories
 
@@ -172,7 +173,7 @@ For every citation that looks like a preprint or working paper, check whether a 
 
 - **Detection signals**: URL contains `arxiv.org`, `ssrn.com`, `nber.org`; journal field says "Working Paper", "mimeo"; entry type is `@techreport` or `@unpublished`
 - **Action**: note the stale citation and suggest the published venue/year
-- **This is a lighter version of `/bib-validate`'s preprint check** — only flag obvious cases visible from the `.bib` or `\bibitem` entries. For thorough preprint checking, recommend running `/bib-validate` separately.
+- **This is a light preprint check** — flag only obvious cases visible from the `.bib` or `\bibitem` entries. For thorough checking, recommend a configured bibliography validator or authoritative metadata lookup.
 
 ## Severity Levels
 
@@ -286,13 +287,15 @@ bash <skills-root>/_shared/review-state-log.sh \
 
 - Verdict: PASS if no issues found across any category; ISSUES FOUND otherwise.
 - Open issues: total count across all 7 (or 11) check categories at run time.
-- Trigger: pass orchestrator name only if invoked via `/pre-submission-report` or `/review-cluster`. Otherwise omit.
+- Trigger: pass orchestrator name only if invoked via `pre-submission-report` or `review-cluster`. Otherwise omit.
 
-Schema: `~/Task-Management/docs/reference/review-state-schema.md`.
+Schema: the installed shared resource `shared/review-state-schema.md`.
+
+**Source format.** Paper prose stays one line per paragraph; normalize edited files with `.scripts/latex_paragraph_format.py --apply` and recompile. Canonical: `rules/latex-source-format.md`.
 
 ## Cross-References
 
-- **`/bib-validate`** — For thorough bibliography cross-referencing
-- **`/latex`** — For compilation and error resolution (run before proofreading to ensure the document compiles cleanly)
+- **Installed bibliography validator** — For thorough bibliography cross-referencing and metadata checks
+- **`latex`** — For compilation and error resolution (run before proofreading to ensure the document compiles cleanly)
 - **Referee 2 agent** — For formal code + paper auditing
-- **`/devils-advocate`** — For argument quality and logical scrutiny
+- **`devils-advocate`** — For argument quality and logical scrutiny

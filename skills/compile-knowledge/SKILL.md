@@ -18,7 +18,7 @@ argument-hint: "[project-path] [--autonomous|-y] (no args = CWD)"
 
 ## When NOT to Use
 
-- For structural project audits — use `/audit-project-research`
+- For structural project audits — use an installed research-project audit workflow
 - For atlas topic metadata — that stays in the vault
 - For session-specific notes — those go in `log/`
 
@@ -43,8 +43,8 @@ knowledge/
 
 | Mode | Invocation | Behaviour |
 |------|-----------|-----------|
-| **Interactive** (default) | `/compile-knowledge [project-path]` | Phases run normally; mid-run nudges allowed where useful; end-of-run summary requires no confirmation but the user can inspect output and re-run. |
-| **Autonomous** | `/compile-knowledge [project-path] --autonomous` (or `-y`) | End-to-end run with zero prompts. All decisions take the documented default. Single end-of-run summary is the only user-facing output. Used by the Saturday `wiki-grow` cron to refresh project knowledge before the wiki-promotion pass. |
+| **Interactive** (default) | `compile-knowledge [project-path]` | Phases run normally; mid-run nudges allowed where useful; end-of-run summary requires no confirmation but the user can inspect output and re-run. |
+| **Autonomous** | `compile-knowledge [project-path] --autonomous` (or `-y`) | End-to-end run with zero prompts. All decisions take the documented default. Single end-of-run summary is the only user-facing output. Used by the Saturday `wiki-grow` cron to refresh project knowledge before the wiki-promotion pass. |
 
 ### Autonomous-mode defaults (every choice point)
 
@@ -164,7 +164,7 @@ Write or update `knowledge/_index.md`:
 ```markdown
 # Knowledge Index
 
-> Auto-maintained by `/compile-knowledge`. Last updated: YYYY-MM-DD.
+> Auto-maintained by `compile-knowledge`. Last updated: YYYY-MM-DD.
 > N articles, ~X words total.
 
 ## Articles
@@ -192,7 +192,7 @@ Write or update `knowledge/_index.md`:
 
 After writing `_index.md`, also update the atlas topic frontmatter so the
 project's compile date is discoverable from outside the project (e.g. by
-`/session-close`, the wiki promotion cron, atlas-workspace).
+`session-close`, the wiki promotion cron, atlas-workspace).
 
 1. Resolve the atlas topic: `grep -rl "project_path:.*$(basename "$PWD")" ~/vault/atlas/`
 2. If a single match is found, set or update the frontmatter field
@@ -204,7 +204,7 @@ project's compile date is discoverable from outside the project (e.g. by
 
 The field is consumed by:
 
-- `/session-close` (info-only freshness line via
+- `session-close` (info-only freshness line via
   `references/research-checks.md` § 18)
 - The Saturday `wiki-grow` cron (uses the date to schedule re-promotion)
 - atlas-workspace (could surface in topic-page metadata row in future)
@@ -249,7 +249,7 @@ Knowledge compiled for <project-name>:
 
 | Skill | Relationship |
 |-------|-------------|
-| `/store-insight` | Lightweight single-finding filer — called by other skills |
-| `/knowledge-lint` | Checks compiled knowledge for inconsistencies |
-| `/literature` (pipeline mode) | Produces literature reviews that feed into compilation |
-| `/session-close` | Extracts session insights and files them via `/store-insight` |
+| `store-insight` | Lightweight single-finding filer — called by other skills |
+| `knowledge-lint` | Checks compiled knowledge for inconsistencies |
+| `literature` (pipeline mode) | Produces literature reviews that feed into compilation |
+| `session-close` | Extracts session insights and files them via `store-insight` |

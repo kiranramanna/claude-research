@@ -3,6 +3,7 @@ name: review-response
 description: "Systematic reviewer response workflow: parse comments, classify by severity, develop response strategy, write structured rebuttal. Use when asked to 'write rebuttal', 'respond to reviewers', 'draft review response', or 'handle R&R'."
 tags: [Research, Academic, Rebuttal, Paper Writing]
 version: 1.0.0
+skill-dependencies: [proofread]
 ---
 
 # Review Response
@@ -99,6 +100,7 @@ Each response follows this structure:
 3. Every claim in the response has evidence (data, citation, or specific manuscript reference)
 4. Every change states its location (Section X, page Y, Table Z)
 5. Never say "The reviewer is wrong" — use "We would like to respectfully clarify"
+6. **Every "Changes:" entry is verified against the manuscript before the letter is assembled** — read/grep the actual `.tex` at the cited location; never trust the comment tracker, an earlier letter draft, or memory of the edit. A promised change with no matching manuscript edit is either downgraded to an honest acknowledgment ("we discuss rather than change...") or flagged to the user as unfulfilled — a letter must never describe the manuscript as more revised than it is. Record the outcome per commitment in the tracker's Fulfillment Ledger (`fulfilled` / `partial` / `not_fulfilled` / `acknowledgment_only`; see `templates/referee-comments/comment-tracker.md`).
 
 ## Step 4: Tone Check
 
@@ -193,7 +195,7 @@ across a revision cycle:
 
 1. Copy `templates/referee-comments/response-letter-ansrev.tex` into the project's `correspondence/` (or `paper-{venue}/paper/`) directory.
 2. Copy `templates/referee-comments/ansrev/{ansrev.sty,revquote.sty}` next to it — these are vendored from GitHub (not on CTAN). See `templates/referee-comments/ansrev/README.md` for provenance.
-3. Append `templates/referee-comments/ansrev/.latexmkrc-snippet` to the project's `.latexmkrc` so latexmk auto-recompiles the main paper for `xr` cross-refs.
+3. Keep the canonical project `.latexmkrc` unchanged. Copy `templates/referee-comments/ansrev/.latexmkrc.local` beside it so latexmk auto-recompiles the main paper for `xr` cross-refs. If `.latexmkrc.local` already exists, merge the custom dependency into that supplement rather than overwriting it.
 4. Set `main={<main-file-basename>}` in the scaffold's `\usepackage{ansrev}` options.
 5. Compile the main paper first, then the response file. Refer to comment-tracker IDs (`R1-C1`, `AE-C2`) as `\label{}`s inside each `\QA{}{}` — `\ref{R1-C1}` elsewhere expands to "Reviewer 1 Comment #1".
 
@@ -201,7 +203,7 @@ across a revision cycle:
 
 - **Before writing:** Read the reviewer comments and the paper to understand context
 - **During writing:** Cross-reference the paper for specific section/page numbers
-- **After writing:** Run `/proofread` on the rebuttal document itself for tone and clarity
+- **After writing:** Run `proofread` on the rebuttal document itself for tone and clarity
 - **If paper changes are needed:** Track them separately — the rebuttal documents the *response*, not the *revision*
 
 ## Reference Documents

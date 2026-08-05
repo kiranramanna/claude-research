@@ -1,6 +1,6 @@
 ---
 name: venue-fork
-description: "Fork an existing conference/journal paper into a second-venue submission variant: verify both CFPs' concurrent-submission policies, create a separate Overleaf project, convert the document class (LIPIcs/LNCS/acmart → target format), refit to the new page budget by relocating content to appendices (never cutting prose), run compile + anonymity + render-level QA, and write back vault submission + atlas output with concurrency/withdrawal clauses. Use for: 'submit this paper also to X', 'concurrent submission', 'make the WINE/EC/conference version', 'reformat for another venue'. NOT for preprints/arXiv (use /preprint), NOT for moving a paper to a new target (use /retarget-journal), NOT post-acceptance (use /camera-ready)."
+description: "Fork an existing conference/journal paper into a second-venue submission variant: verify both CFPs' concurrent-submission policies, create a separate Overleaf project, convert the document class (LIPIcs/LNCS/acmart → target format), refit to the new page budget by relocating content to appendices (never cutting prose), run compile + anonymity + render-level QA, and write back vault submission + atlas output with concurrency/withdrawal clauses. Use for: 'submit this paper also to X', 'concurrent submission', 'make the WINE/EC/conference version', 'reformat for another venue'. NOT for preprints/arXiv (use preprint), NOT for moving a paper to a new target (use retarget-journal), NOT post-acceptance (use camera-ready)."
 allowed-tools:
   - Read
   - Glob
@@ -15,7 +15,7 @@ allowed-tools:
 # Venue Fork: Second-Venue Submission Variant
 
 Fork a paper for a second venue while the original submission keeps living. A fork is a **copy**
-(both venues track independently), unlike `/retarget-journal` (a move) and `/preprint` (a
+(both venues track independently), unlike `retarget-journal` (a move) and `preprint` (a
 non-archival variant that must NOT get a vault submission entry).
 
 ## When to Use
@@ -48,6 +48,9 @@ explicitly before doing the work.
    the existing naming convention. Resolve the Dropbox root per `multi-machine.md`.
 2. Copy from the source project: `main.tex`, the bib, figure dirs, any `.bst` the target format
    needs. **Never edit the source project's files** — it is a live submission surface.
+   Copy **files by name only** — never `cp -r` a whole template/source dir into the new Overleaf
+   folder, which would drag a `.git` in and make it a repo on the wrong remote. Confirm
+   `find <new-overleaf-folder> -name .git` is empty. See `.claude/rules/template-scaffold-strip-git.md`.
 3. Project dir: `mkdir <project>/paper-{venue}/` + **relative** symlink
    `paper-{venue}/paper → ../../../../../Apps/Overleaf/<name>` (absolute symlinks break
    cross-machine).
@@ -69,6 +72,15 @@ Target submission formats like WINE's are satisfied by plain `\documentclass[11p
   uses `\cref`/`\Cref` (LIPIcs loads it via class option).
 - `.bst` files: `plainurl.bst` ships with TeX Live (urlbst); `splncs04.bst` must be copied into
   the fork. Check with `kpsewhich <name>.bst` before assuming.
+
+**Shared math core.** A class conversion is a legitimate adoption window for
+`user-math.sty` (`templates/venues/_shared/`): copy it in, load it AFTER the
+new class, and delete the preamble's now-duplicate `\newcommand{\E}`-style
+lines — it supplies the macro set, operators, delimiters, and theorem
+environments clash-safely (`[notheorems]` when the kit owns them). Papers not
+being converted are NOT retrofitted (`templates/venues/_shared/README.md`;
+candidates: `docs/reference/user-math-adoption-candidates.md`).
+
 
 ## Phase 3 — Page-budget refit (relocate, never cut)
 
@@ -99,8 +111,9 @@ Target submission formats like WINE's are satisfied by plain `\documentclass[11p
 Multi-system completeness — all of these, then verify:
 
 1. **Vault submission file** `submissions/<topic>-<venue>-<year>.md`: `status: Submitted`,
-   `submitted_date`, **`notification_date`** (without it the inbox deadlines adapter never emits
-   the notification item — real gap found 2026-07-02), conference dates, `double_blind`,
+   `submitted_date`, and exactly one attention date: **`notification_date`** for a real CFP
+   decision date or **`follow_up_date`** for an operational journal check-in. Set conference
+   dates, `double_blind`,
    `paper_id`, and a body **concurrency clause**: which venue notifies first and the withdrawal
    obligation. Link the primary submission entry.
 2. **Atlas topic** `outputs[]`: new venue entry, `status: Submitted` (output-ladder canon only),
@@ -108,9 +121,9 @@ Multi-system completeness — all of these, then verify:
    `rules/atlas-status-vocabulary.md` § submission-join completeness: `paper_id` (same as the
    vault entry), `paper_title` (must equal the registry `canonical_title`), and — if the venue is
    a Conference/Workshop — `cycle: <Venue> <edition-year>` (journals exempt). (Do NOT bump
-   `last_reviewed` — a venue swap is not topic-file curation; only `/update-topic-file` writes
+   `last_reviewed` — a venue swap is not topic-file curation; only `update-topic-file` writes
    that field.) Validate with `atlas-vault/schema.py`; `validate-portfolio-registry.py` catches
-   any missed join as `cycle-gap`/`title-gap` at the next `/session-close`.
+   any missed join as `cycle-gap`/`title-gap` at the next `session-close`.
    If the fork target has **no venue file** yet, create `~/vault/venues/<slug>.md` with
    canon-only ranking fields (`cabs`/`core`/`scimago`/`venue_type` from the fixed sets — lookup
    caveats go in `#` comments after a canon value, never in the value).
@@ -137,7 +150,7 @@ Multi-system completeness — all of these, then verify:
 
 - **Don't** edit or compile inside the source venue's Overleaf project — fork first, then touch.
 - **Don't** cut prose to make the page budget — relocate to appendices.
-- **Don't** create the vault submission entry for a preprint-server post — that's `/preprint`'s
+- **Don't** create the vault submission entry for a preprint-server post — that's `preprint`'s
   domain and the `preprint-vs-submission` rule forbids it.
 - **Don't** skip verifying the concurrent policy on the SOURCE venue's side.
 - **Don't** report "ready" from compile success alone — run the render-level check.
@@ -147,5 +160,5 @@ Multi-system completeness — all of these, then verify:
 
 The fork is done when: fork compiles clean at/under budget with 0 warnings; anonymity + render
 checks pass; source project untouched (`ls -lt` mtimes); after submission, vault + atlas agree
-(`Submitted`, same dates), schema validates, the inbox shows the notification item, and the
+(`Submitted`, same dates), schema validates, the inbox shows the notification or follow-up item, and the
 submitted-PDF archive is filed with a pointer.

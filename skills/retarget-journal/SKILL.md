@@ -2,7 +2,8 @@
 name: retarget-journal
 description: "Use when you need to retarget a paper to a different journal (rename, swap bib, update citations)."
 allowed-tools: Bash(latexmk*), Bash(pdflatex*), Bash(xelatex*), Bash(mkdir*), Bash(ls*), Bash(cp*), Bash(mv*), Bash(git*), Read, Write, Edit, Glob, Grep, Task
-argument-hint: [target-journal-name]
+argument-hint: "[target-journal-name]"
+skill-dependencies: []
 ---
 
 # Retarget Journal Skill
@@ -68,7 +69,7 @@ Present the assessment to the user before proceeding.
    - Find all `\cite{...}`, `\citet{...}`, `\citep{...}`, `\citeauthor{...}` commands in `.tex` files
    - Map old keys to new keys (match by author + year)
    - Replace all occurrences
-3. **Validate** — run `/bib-validate` to ensure no missing or unused keys
+3. **Validate** — cross-reference every manuscript citation key against the `.bib` files and report missing or unused keys. Use an installed bibliography validator for deeper metadata checks when available.
 
 ### Phase 4: Formatting
 
@@ -137,8 +138,8 @@ When retargeting, the writing style often needs to change too — not just the f
 
 | Skill | When to use alongside |
 |-------|----------------------|
-| `/bib-validate` | After Phase 3 to verify all citation keys |
-| `/latex` | **Default compiler** — use for compilation with auto error resolution |
-| `/latex` | For manual compilation config and `.latexmkrc` setup |
-| `/proofread` | After retarget to check for remnants of old journal formatting |
+| Installed bibliography validator | Optional deeper metadata validation after Phase 3 |
+| `latex` | **Default compiler** — use for compilation with auto error resolution |
+| `latex` | For manual compilation config and `.latexmkrc` setup |
+| `proofread` | After retarget to check for remnants of old journal formatting |
 | `vault sync (edit vault files directly)` | After Phase 5 to sync with central context library |

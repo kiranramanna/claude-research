@@ -1,6 +1,6 @@
 # Reveal.js Markdown Format Reference
 
-> Format reference for `/quarto-deck`. All slides live in a single `.md` file with `---` separators.
+> Format reference for `quarto-deck`. All slides live in a single `.md` file with `---` separators.
 
 ## Basic Structure
 
@@ -140,4 +140,4 @@ Create a `custom.css` file alongside the Markdown:
 }
 ```
 
-For colour palette starting points, see [`skills/shared/palettes.md`](../shared/palettes.md).
+For colour palette starting points, see [`skills/shared/palettes.md`](../../shared/palettes.md).

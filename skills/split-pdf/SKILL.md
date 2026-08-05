@@ -2,7 +2,7 @@
 name: split-pdf
 description: "Use when you need to download, split, and deeply read an academic PDF that is NOT in Paperpile (for Paperpile items, prefer paperpile get-pdf-text directly)."
 allowed-tools: Bash(uv:*), Bash(uv*), Bash(curl*), Bash(wget*), Bash(mkdir*), Bash(ls*), Bash(rm*), Read, Write, Edit, WebSearch, WebFetch, Agent, Bash(paperpile*)
-argument-hint: [pdf-path-or-search-query]
+argument-hint: "[pdf-path-or-search-query]"
 ---
 
 # Split-PDF: Download, Split, and Deep-Read Academic Papers
@@ -24,6 +24,7 @@ The user wants you to read, review, or summarize an academic paper. The input is
 **If a local file path is provided:**
 - Verify the file exists
 - **Use the PDF in place** — do not move or copy it. The folder containing the PDF becomes the working directory for splits and extracts.
+- If downstream work will cite page numbers, run the read-integrity preflight first (`pdf-extract <file> --preflight`) — a non-PASS verdict means page indices from this file are untrustworthy (truncated or silently repaired document).
 - Proceed to Step 2
 
 **If a search query or paper title is provided:**
@@ -34,15 +35,10 @@ Determine the download directory:
 
 Then:
 1. Use web search to find the paper
-2. If web search doesn't yield a direct PDF link, try `scholarly scholarly-search` first. Fallback to Python OpenAlex client:
-   ```python
-   import sys
-   sys.path.insert(0, ".scripts/openalex")
-   from openalex_client import OpenAlexClient
-   client = OpenAlexClient(email="user@example.edu")
-   results = client.search_works(search="paper title here", per_page=5)
-   # Check open_access.oa_url in results for direct PDF links
-   ```
+2. If web search does not yield a direct PDF link, use a separately installed
+   scholarly CLI when available (for example,
+   `scholarly scholarly-search "paper title" --json`). Otherwise search the
+   publisher, DOI landing page, arXiv, or an institutional repository directly.
 3. Use web fetch or Bash (curl/wget) to download the PDF
 4. Save it to the download directory
 5. Proceed to Step 2
@@ -201,7 +197,7 @@ Report when done: pages read, figures/tables found, one-sentence content summary
 
 After the agent returns, the parent reads the output files (plain markdown, not PDF images) and continues its workflow.
 
-**Standalone invocations** (user calls `/split-pdf` directly) use the interactive protocol above with reads in the main conversation and the pause-and-confirm protocol.
+**Standalone invocations** (user calls `split-pdf` directly) use the interactive protocol above with reads in the main conversation and the pause-and-confirm protocol.
 
 ## When NOT to Split
 

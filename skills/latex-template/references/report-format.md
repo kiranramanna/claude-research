@@ -1,6 +1,6 @@
 # Template Compliance — Report Format
 
-> Phase 5 report template for `/latex-template`. Adapt to actual audit findings.
+> Phase 5 report template for `latex-template`. Adapt to actual audit findings.
 
 ## Severity Levels
 
@@ -123,8 +123,8 @@ BUILD CONFIG
 
   - [Major] Missing: .latexmkrc
     No .latexmkrc found in project root or paper directory.
-    Template provides: lualatex engine, out/ directory, PDF copy-back.
-    Create .latexmkrc from template.
+    The canonical provides engine inference, out/ isolation, and fail-closed PDF copy-back.
+    Copy the resolved canonical verbatim.
 
 ────────────────────────────────────────
 
@@ -168,7 +168,7 @@ SCORING BREAKDOWN
 RECOMMENDATIONS (prioritised)
 -----------------------------
 
-  1. Create .latexmkrc from template (enables proper build pipeline)
+  1. Copy the resolved canonical .latexmkrc verbatim (enables the supported build contract)
   2. Resolve biblatex maxcitenames: choose 2 (template) or 3 (current)
   3. Add dvipsnames option to xcolor (required for NavyBlue in hyperref)
   4. Add bibliography source mappings (cleans up month/author/journal noise)
@@ -179,7 +179,7 @@ RECOMMENDATIONS (prioritised)
   9. Add missing hyperref keys (anchorcolor)
   10. Add hypothesis theorem environment
 
-Run `/latex-template ~/papers/costly-voice --apply` to interactively apply changes.
+Run `latex-template ~/papers/costly-voice --apply` to interactively apply changes.
 ```
 
 ## Score Interpretation
