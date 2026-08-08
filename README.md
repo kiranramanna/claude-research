@@ -83,6 +83,37 @@ the full guide (including Windows-specific setup and troubleshooting).
 |---------|---------|-------------|
 | [`council-api`](https://github.com/flonat/council-api) | Clone and use `uv` | Multi-model council via OpenRouter-compatible APIs |
 
+### Plugin marketplace (agents only — no install script)
+
+`.claude-plugin/marketplace.json` and `.claude-plugin/plugin.json` let Claude
+Code and GitHub Copilot CLI install this repo as a plugin directly, without
+running `setup.sh`/`install.py`. This path only exposes the 15 agents listed
+in `plugin.json` — it does **not** install the 94 skills, hooks, or rules,
+which require the full repository install above.
+
+Both marketplace name and plugin name are `flow`.
+
+**Claude Code:**
+
+```text
+/plugin marketplace add sn-kit/flow          # or git@github.com:sn-kit/flow.git
+/plugin install flow@flow
+```
+
+**GitHub Copilot CLI** (reuses the same `.claude-plugin/` format):
+
+```text
+/plugin marketplace add sn-kit/flow
+/plugin install flow@flow
+```
+
+CLI equivalent (outside the Claude Code REPL):
+
+```bash
+claude plugin marketplace add sn-kit/flow    # or the git@… URL
+claude plugin install flow@flow
+```
+
 ## What's Included
 
 <!-- COMPONENT-TABLE:START -->
