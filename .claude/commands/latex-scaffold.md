@@ -1,6 +1,8 @@
 ---
-description: Use when you need to convert a Markdown draft into a buildable LaTeX
-  project.
+description: Convert an existing Markdown manuscript draft into a buildable LaTeX
+  project with canonical structure and build configuration. Use when prose already
+  exists but no LaTeX source tree does. Not for checking template drift in an existing
+  project; use $latex-template.
 ---
 
 # Shared skill adapter

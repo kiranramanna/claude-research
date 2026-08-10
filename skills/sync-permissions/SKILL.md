@@ -1,6 +1,6 @@
 ---
 name: sync-permissions
-description: "Use when you need to sync global permissions into the current project."
+description: "Reconcile the current project's Claude and Codex permission surfaces with the canonical global policy. Use when project permissions are missing, stale, or inconsistent after setup or migration. Not for syncing skills, hooks, or agents; use $sync-ai-infra."
 allowed-tools: Bash(jq*), Bash(ls*), Bash(test*), Bash(readlink*), Read, Write, Edit
 argument-hint: (no arguments)
 ---

@@ -1,6 +1,8 @@
 ---
-description: Use when you need to wire a shared Python package as an editable dependency
-  across projects.
+description: Add or repair an editable shared Python-package dependency across consuming
+  projects, including clone-local configuration and verification. Use when multiple
+  repositories must import the same local package source. Not for one project's ordinary
+  environment setup; use $python-env.
 ---
 
 # Shared skill adapter

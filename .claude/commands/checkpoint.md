@@ -1,6 +1,8 @@
 ---
-description: Use when you need to save session state to survive context compaction
-  or handoff between sessions.
+description: Save a compact continuation checkpoint so current work survives context
+  compaction or a later session. Use when the active context is becoming long or work
+  must pause without changing client or machine ownership. For an explicit cross-session/client
+  transfer, use $handoff.
 ---
 
 # Shared skill adapter

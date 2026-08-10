@@ -1,6 +1,6 @@
 ---
 name: session-health
-description: "Use when you need to check current context status and session health."
+description: "Check whether the current session has coherent guidance, focus, handoff state, working-tree ownership, and enough context to proceed safely. Use when starting, resuming, or diagnosing a confused session. Not for auditing the machine or deployed AI infrastructure; use $system-audit."
 allowed-tools:
   - Read
   - Glob

@@ -1,6 +1,6 @@
 ---
 name: synthetic-data
-description: "Use when you need to generate structurally realistic synthetic datasets for pilot testing or power analysis."
+description: "Generate structurally realistic synthetic datasets for pipeline prototyping, test coverage, or prospective power analysis. Use when code or design must be exercised before real data are available or accessible. Never substitute synthetic records for governed raw data."
 allowed-tools: Bash(uv*, Rscript*, R*, mkdir*, ls*), Read, Write, Edit, Glob, Grep, AskUserQuestion
 argument-hint: "[--mode from-design|from-schema|calibrated]"
 ---

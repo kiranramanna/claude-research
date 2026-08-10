@@ -1,6 +1,6 @@
 ---
 name: compile-knowledge
-description: "Use when you need to compile raw inputs (literature, meeting notes, session logs, code findings) into a per-project knowledge wiki. Supports --autonomous / -y for end-to-end runs without prompts (used by the Saturday wiki-grow cron)."
+description: "Compile literature, meeting notes, session logs, and code findings into a structured per-project knowledge wiki. Use when project evidence is scattered across source records and needs synthesis into durable articles. Not for promoting existing articles into the global vault wiki; use $wiki-grow."
 allowed-tools: Read, Glob, Grep, Write, Edit, Bash(mkdir*), Agent
 argument-hint: "[project-path] [--autonomous|-y] (no args = CWD)"
 ---

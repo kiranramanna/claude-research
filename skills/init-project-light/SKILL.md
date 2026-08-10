@@ -1,6 +1,6 @@
 ---
 name: init-project-light
-description: "Use when you need to bootstrap a lightweight project with minimal structure."
+description: "Bootstrap a lightweight project with minimal guidance, context, and repository structure. Use when a small non-research project needs durable AI collaboration without the full research or course scaffold. Not for formal research projects; use $init-project-research."
 allowed-tools: Bash(mkdir*), Bash(ls*), Bash(touch*), Read, Write, Edit, Glob, Grep, AskUserQuestion
 argument-hint: "[no arguments — runs in current directory]"
 ---

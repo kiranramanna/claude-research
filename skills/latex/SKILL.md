@@ -1,6 +1,6 @@
 ---
 name: latex
-description: "Use when you need to compile a LaTeX document — includes autonomous error resolution, citation audit, and quality scoring."
+description: "Compile one specified LaTeX document, resolve build errors, audit citations, and report build quality. Use when a .tex source must be built or a concrete compilation failure repaired. Not for corpus-wide build checks, visual polish after a clean build, or creating a project; use $latex-health-check, $latex-polish, or $latex-scaffold."
 allowed-tools: Bash(latexmk*), Bash(xelatex*), Bash(pdflatex*), Bash(biber*), Bash(bibtex*), Bash(mkdir*), Bash(ls*), Bash(wc*), Bash(cp*), Bash(cmp*), Bash(head*), Read, Write, Edit, Grep, Glob
 argument-hint: "[tex-file-path]"
 skill-dependencies: []

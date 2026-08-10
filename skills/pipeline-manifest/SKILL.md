@@ -1,6 +1,6 @@
 ---
 name: pipeline-manifest
-description: "Use when you need to map scripts to their inputs, outputs, and paper figures/tables."
+description: "Build a traceability manifest linking analysis scripts to inputs, outputs, and manuscript figures or tables. Use when documenting a computational pipeline or locating the source of a reported artefact. Not for verifying that paper claims match code outputs; use the code-paper auditor."
 allowed-tools: Read, Write, Edit, Glob, Grep, AskUserQuestion
 argument-hint: "[project-path]"
 ---
